@@ -3,74 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Treino Pratique - Gustavo</title>
+    <title>Treino Gustavo - Pratique</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #121212; color: #eee; margin: 0; padding: 10px; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: #121212; color: #eee; margin: 0; padding: 10px; }
         .container { max-width: 600px; margin: auto; }
-        header { text-align: center; padding: 15px 0; border-bottom: 1px solid #333; margin-bottom: 10px; }
-        h1 { color: #ff3e3e; margin: 0; font-size: 22px; }
-        .treino-btn { background: #ff3e3e; color: white; cursor: pointer; padding: 15px; width: 100%; border: none; text-align: left; font-size: 18px; font-weight: bold; border-radius: 8px; margin-top: 10px; display: flex; justify-content: space-between; }
+        header { text-align: center; padding: 15px 0; border-bottom: 2px solid #ff3e3e; margin-bottom: 15px; }
+        h1 { color: #ff3e3e; margin: 0; font-size: 22px; text-transform: uppercase; }
+        .treino-btn { background: #ff3e3e; color: white; cursor: pointer; padding: 16px; width: 100%; border: none; text-align: left; font-size: 18px; font-weight: bold; border-radius: 8px; margin-top: 12px; display: flex; justify-content: space-between; }
         .panel-treino { display: none; margin-bottom: 20px; }
-        .ex-item { background: #1e1e1e; margin-top: 5px; border-radius: 5px; border-left: 4px solid #444; }
+        .ex-item { background: #1e1e1e; margin-top: 6px; border-radius: 6px; border-left: 5px solid #444; transition: 0.3s; }
         .ex-header { display: flex; align-items: center; padding: 12px; }
-        .ex-name { flex-grow: 1; font-size: 14px; cursor: pointer; }
+        .ex-name { flex-grow: 1; font-size: 15px; font-weight: 500; cursor: pointer; }
         .ex-done { border-left-color: #4caf50; background: #1a2e1a; }
         .ex-done .ex-name { color: #81c784; text-decoration: line-through; }
-        .btn-check { background: #333; border: none; color: white; padding: 8px; border-radius: 4px; margin-left: 10px; }
-        .ex-content { display: none; padding: 15px; background: #252525; }
-        .video-wrap { position: relative; padding-bottom: 56.25%; height: 0; margin-bottom: 10px; }
-        .video-wrap iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; border-radius: 4px; }
-        input[type="number"] { background: #333; border: 1px solid #444; color: white; padding: 5px; width: 50px; border-radius: 3px; text-align: center; }
+        .btn-check { background: #333; border: none; color: white; padding: 10px; border-radius: 5px; margin-left: 10px; cursor: pointer; }
+        .ex-content { display: none; padding: 15px; background: #252525; border-top: 1px solid #333; }
+        .video-wrap { position: relative; padding-bottom: 56.25%; height: 0; margin-bottom: 12px; background: #000; border-radius: 4px; overflow: hidden; }
+        .video-wrap iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+        .input-row { display: flex; align-items: center; gap: 8px; color: #aaa; font-size: 14px; }
+        input[type="number"] { background: #333; border: 1px solid #555; color: white; padding: 6px; width: 55px; border-radius: 4px; text-align: center; outline: none; }
+        input[type="number"]:focus { border-color: #ff3e3e; }
     </style>
 </head>
 <body>
     <div class="container">
-        <header><h1>TREINO PRATIQUE</h1></header>
+        <header><h1>ACADEMIA - PRATIQUE</h1></header>
         <div id="app"></div>
     </div>
 
     <script>
         const dados = {
-            'Treino A': [
+            'Treino A (Peito/Tríc/Ombro)': [
                 { n: "Supino Reto Barra", d: "Desça a barra até o peito e suba.", v: "sqOw2Y6uDWQ" },
-                { n: "Peitoral Voador", d: "Feche os braços focando no peito.", v: "eGjt4P-UunE" },
-                { n: "Encolhimento Ombros", d: "Suba os ombros sem girar.", v: "K_pMofU0XGk" },
-                { n: "Desenvolvimento Halteres", d: "Empurre acima da cabeça.", v: "M2rwvNhS90c" },
-                { n: "Tríceps Corda", d: "Cotovelos fixos, abra a corda embaixo.", v: "6YmZ009N5_M" },
-                { n: "Tríceps Francês Unilat.", d: "Flexão atrás da nuca.", v: "49zKsc_FqF0" },
-                { n: "Tríceps Pulley", d: "Extensão no cabo com barra.", v: "Zp6_V_G_24E" },
-                { n: "Abdominal Canivete", d: "Mãos e pés se encontram no topo.", v: "Z4uWnL7E5v0" }
+                { n: "Peitoral Voador (Pec Deck)", d: "Feche os braços focando na contração do peito.", v: "eGjt4P-UunE" },
+                { n: "Encolhimento de Ombros", d: "Eleve os ombros em direção às orelhas.", v: "aw8U7V_mP6M" },
+                { n: "Desenvolvimento c/ Halteres", d: "Empurre os pesos acima da cabeça.", v: "M2rwvNhS90c" },
+                { n: "Tríceps Corda no Cross", d: "Mantenha cotovelos fixos e abra a corda embaixo.", v: "6YmZ009N5_M" },
+                { n: "Tríceps Francês Unilateral", d: "Flexão de cotovelo atrás da nuca.", v: "49zKsc_FqF0" },
+                { n: "Tríceps Pulley (Barra)", d: "Extensão de braço no cabo com barra reta.", v: "Zp6_V_G_24E" },
+                { n: "Abdominal Canivete", d: "Encontre mãos e pés no topo do movimento.", v: "Z4uWnL7E5v0" }
             ],
-            'Treino B': [
-                { n: "Agachamento Guiado", d: "Agache com coluna reta.", v: "6_uVq8SUp0I" },
-                { n: "Leg Press 45", d: "Empurre sem travar joelhos.", v: "E6M8L4D3u_M" },
-                { n: "Banco Extensor", d: "Foco no quadríceps.", v: "6u4mZfM_H8o" },
-                { n: "Banco Flexor", d: "Puxe em direção ao glúteo.", v: "O-2j9YnBfSc" },
-                { n: "Banco Abdutor", d: "Abra as pernas.", v: "U-6Y0Y_rX2I" },
-                { n: "Banco Adutor", d: "Feche as pernas.", v: "6u4mZfM_H8o" },
-                { n: "Panturrilha Vertical", d: "Ponta de pé máximo.", v: "X8m_v7_6zGk" },
-                { n: "Abdominal Oblíquo", d: "Flexão lateral no solo.", v: "Z4uWnL7E5v0" }
+            'Treino B (Pernas)': [
+                { n: "Agachamento Barra Guiada", d: "Agache mantendo a coluna reta.", v: "6_uVq8SUp0I" },
+                { n: "Leg Press 45", d: "Empurre sem esticar totalmente o joelho.", v: "E6M8L4D3u_M" },
+                { n: "Banco Extensor", d: "Chute para cima focando no quadríceps.", v: "6u4mZfM_H8o" },
+                { n: "Banco Flexor", d: "Puxe o rolo em direção ao glúteo.", v: "O-2j9YnBfSc" },
+                { n: "Banco Abdutor", d: "Abra as pernas contra a resistência.", v: "U-6Y0Y_rX2I" },
+                { n: "Banco Adutor", d: "Feche as pernas focando na parte interna.", v: "3Vv_U-8uCIs" },
+                { n: "Panturrilha Vertical", d: "Movimento de ponta de pé máximo.", v: "X8m_v7_6zGk" },
+                { n: "Abdominal Oblíquo Solo", d: "Flexão lateral do tronco no solo.", v: "Z4uWnL7E5v0" }
             ],
-            'Treino C': [
-                { n: "Pulley Frente Aberto", d: "Puxe a barra até o peito.", v: "6u4_mI_A_u0" },
-                { n: "Pulldown Máquina", d: "Puxe focando nas costas.", v: "6u4mYmN_8u0" },
+            'Treino C (Costas/Bíceps)': [
+                { n: "Pulley Frente Aberta", d: "Puxe a barra até o peito abrindo as costas.", v: "6u4_mI_A_u0" },
+                { n: "Pulldown Máquina", d: "Puxe focando na grande dorsal.", v: "6u4mYmN_8u0" },
                 { n: "Remada Baixa Neutra", d: "Puxe o triângulo no umbigo.", v: "6u4mZfM_H8o" },
-                { n: "Rosca Scott Aparelho", d: "Flexão isolada no banco.", v: "O-2j9YnBfSc" },
-                { n: "Rosca Alternada", d: "Flexão alternando os braços.", v: "X8m_v7_6zGk" },
-                { n: "Rosca Martelo", d: "Pegada neutra (palma p/ dentro).", v: "X8m_v7_6zGk" },
-                { n: "Desenvolvimento Máq.", d: "Empurre para cima.", v: "M2rwvNhS90c" },
-                { n: "Abdo Infra Paralela", d: "Eleve as pernas suspenso.", v: "Z4uWnL7E5v0" },
-                { n: "Abdo Supra Aparelho", d: "Flexão de tronco na máquina.", v: "Z4uWnL7E5v0" }
+                { n: "Rosca Scott Aparelho", d: "Flexão de braço isolada no banco.", v: "O-2j9YnBfSc" },
+                { n: "Rosca Alternada", d: "Flexão de braço alternando os lados.", v: "X8m_v7_6zGk" },
+                { n: "Rosca Martelo", d: "Pegada neutra (palmas para dentro).", v: "X8m_v7_6zGk" },
+                { n: "Desenvolvimento Máquina", d: "Empurre os braços da máquina para cima.", v: "M2rwvNhS90c" },
+                { n: "Abdominal Infra Paralela", d: "Eleve as pernas suspenso na paralela.", v: "Z4uWnL7E5v0" },
+                { n: "Abdominal Supra Aparelho", d: "Flexão de tronco na máquina.", v: "Z4uWnL7E5v0" }
             ]
         };
 
         const app = document.getElementById('app');
         Object.keys(dados).forEach(tNome => {
-            let html = `<button class="treino-btn" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'block' ? 'none' : 'block'">${tNome}</button><div class="panel-treino">`;
+            let html = `<button class="treino-btn" onclick="const p = this.nextElementSibling; p.style.display = p.style.display === 'block' ? 'none' : 'block'">${tNome} <span>▾</span></button><div class="panel-treino">`;
             dados[tNome].forEach((ex, i) => {
-                const id = `${tNome}-${i}`.replace(/\s+/g, '');
+                const id = `${tNome}-${i}`.replace(/\s+/g, '').replace(/[()\/]/g, '');
                 const p = localStorage.getItem(`p-${id}`) || "";
-                html += `<div class="ex-item" id="it-${id}"><div class="ex-header"><span class="ex-name" onclick="document.getElementById('co-${id}').style.display = document.getElementById('co-${id}').style.display === 'block' ? 'none' : 'block'">${ex.n}</span><input type="number" value="${p}" placeholder="kg" onchange="localStorage.setItem('p-${id}', this.value)"><button class="btn-check" onclick="document.getElementById('it-${id}').classList.toggle('ex-done')">✅</button></div><div class="ex-content" id="co-${id}"><p>${ex.d}</p><div class="video-wrap"><iframe src="https://www.youtube.com/embed/${ex.v}"></iframe></div></div></div>`;
+                html += `
+                <div class="ex-item" id="it-${id}">
+                    <div class="ex-header">
+                        <span class="ex-name" onclick="const c = document.getElementById('co-${id}'); c.style.display = c.style.display === 'block' ? 'none' : 'block'">${ex.n}</span>
+                        <div class="input-row">
+                            <input type="number" value="${p}" placeholder="Kg" onchange="localStorage.setItem('p-${id}', this.value)">
+                        </div>
+                        <button class="btn-check" onclick="document.getElementById('it-${id}').classList.toggle('ex-done')">✅</button>
+                    </div>
+                    <div class="ex-content" id="co-${id}">
+                        <p style="margin-top:0">${ex.d}</p>
+                        <div class="video-wrap">
+                            <iframe src="https://www.youtube.com/embed/${ex.v}?modestbranding=1&rel=0" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                </div>`;
             });
             html += `</div>`;
             app.innerHTML += html;
