@@ -3,25 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Treino Pratique - Gustavo</title>
+    <title>Treino Gustavo - Pratique</title>
     <style>
-        body { font-family: -apple-system, system-ui, sans-serif; background: #121212; color: #eee; margin: 0; padding: 10px; }
+        body { font-family: sans-serif; background: #121212; color: #eee; margin: 0; padding: 10px; }
         .container { max-width: 600px; margin: auto; }
         header { text-align: center; padding: 15px 0; border-bottom: 2px solid #ff3e3e; margin-bottom: 15px; }
         h1 { color: #ff3e3e; margin: 0; font-size: 22px; text-transform: uppercase; }
         .treino-btn { background: #ff3e3e; color: white; cursor: pointer; padding: 16px; width: 100%; border: none; text-align: left; font-size: 18px; font-weight: bold; border-radius: 8px; margin-top: 12px; display: flex; justify-content: space-between; }
         .panel-treino { display: none; margin-bottom: 20px; }
-        .ex-item { background: #1e1e1e; margin-top: 6px; border-radius: 6px; border-left: 5px solid #444; transition: 0.3s; }
+        .ex-item { background: #1e1e1e; margin-top: 6px; border-radius: 6px; border-left: 5px solid #444; }
         .ex-header { display: flex; align-items: center; padding: 12px; }
-        .ex-name { flex-grow: 1; font-size: 15px; font-weight: 500; cursor: pointer; }
+        .ex-name { flex-grow: 1; font-size: 14px; font-weight: 500; cursor: pointer; }
         .ex-done { border-left-color: #4caf50; background: #1a2e1a; }
         .ex-done .ex-name { color: #81c784; text-decoration: line-through; }
         .btn-check { background: #333; border: none; color: white; padding: 10px; border-radius: 5px; margin-left: 10px; cursor: pointer; }
         .ex-content { display: none; padding: 15px; background: #252525; border-top: 1px solid #333; }
         .video-wrap { position: relative; padding-bottom: 56.25%; height: 0; margin-bottom: 12px; background: #000; border-radius: 4px; overflow: hidden; }
         .video-wrap iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-        .input-row { display: flex; align-items: center; gap: 8px; color: #aaa; font-size: 14px; }
-        input[type="number"] { background: #333; border: 1px solid #555; color: white; padding: 6px; width: 55px; border-radius: 4px; text-align: center; outline: none; }
+        input[type="number"] { background: #333; border: 1px solid #555; color: white; padding: 6px; width: 55px; border-radius: 4px; text-align: center; }
     </style>
 </head>
 <body>
@@ -32,36 +31,36 @@
 
     <script>
         const dados = {
-            'Treino A (Peito/Tríc/Ombro)': [
-                { n: "Supino Reto na Barra", d: "Desça a barra até o peito e suba.", v: "MPM1bqU7b44" },
-                { n: "Peitoral Voador", d: "Feche os braços focando na contração do peito.", v: "wSgnQlXAgT0" },
-                { n: "Encolhimento de Ombros", d: "Eleve os ombros em direção às orelhas.", v: "Dl5jKuF4hLY" },
-                { n: "Desenvolvimento c/ Halteres", d: "Empurre os pesos acima da cabeça.", v: "7p5s1jGTbqI" },
-                { n: "Tríceps Corda no Cross Over", d: "Mantenha cotovelos fixos e abra a corda embaixo.", v: "wHkWxu7Qewg" },
-                { n: "Tríceps Francês Unilateral", d: "Flexão de cotovelo com o braço acima da cabeça.", v: "8OYyImTR3dk" },
-                { n: "Tríceps Pulley", d: "Extensão de braço no cabo com barra reta.", v: "ZjjzY2IObIU" },
-                { n: "Abdominal Canivete no Solo", d: "Encontre mãos e pés no topo do movimento.", v: "L0a9hW37Nwc" }
+            'Treino A': [
+                { n: "ENCOLHIMENTO DE OMBROS - INT", v: "ZygClRlKm9M" },
+                { n: "PEITORAL VOADOR - INT", v: "jLl6YEWBD0I" },
+                { n: "SUPINO RETO NA BARRA - INT", v: "A02r9Z1N9iY" },
+                { n: "TRICEPS CORDA NO CROSS OVER - INT", v: "6YmZ009N5_M" },
+                { n: "TRICEPS FRANCES UNILATERAL COM HALTER - INT", v: "49zKsc_FqF0" },
+                { n: "ABDOMINAL CANIVETE NO SOLO - INT", v: "ouOMf0AMWEA" },
+                { n: "DESENVOLVIMENTO COM HALTERES", v: "3ZwwrTtnGJo" },
+                { n: "TRICEPS PULLEY", v: "ZjjzY2IObIU" }
             ],
-            'Treino B (Pernas)': [
-                { n: "Agachamento na Barra Guiada", d: "Agache mantendo a coluna reta e pés firmes.", v: "8pjN_4fkxgU" },
-                { n: "Leg Press 45", d: "Empurre a plataforma sem travar totalmente o joelho.", v: "LMUMAhpdzIw" },
-                { n: "Banco Extensor Bilateral", d: "Chute para cima focando no quadríceps.", v: "McDlS16kwhI" },
-                { n: "Banco Flexor Bilateral", d: "Puxe o rolo em direção ao glúteo.", v: "vWqi5uAnEu4" },
-                { n: "Banco Abdutor", d: "Abra as pernas contra a resistência da máquina.", v: "E5r5OmVfxpU" },
-                { n: "Banco Adutor", d: "Feche as pernas focando na parte interna.", v: "ob0TW9slbBQ" },
-                { n: "Panturrilha Aparelho Vertical", d: "Movimento de ponta de pé máximo.", v: "ZQdqLXtNpMQ" },
-                { n: "Abdominal Oblíquo de Lado", d: "Flexão lateral do tronco no solo.", v: "Co2uQdv2b6w" }
+            'Treino B': [
+                { n: "ABDOMINAL OBLIQUO DE LADO - INI", v: "-WjHb4OEpLM" },
+                { n: "AGACHAMENTO NA BARRA GUIADA - INT", v: "8pjN_4fkxgU" },
+                { n: "BANCO ABDUTOR - INI", v: "uiaPgrCUI58" },
+                { n: "BANCO EXTENSOR BILATERAL - INI", v: "UaHI5Pqc__o" },
+                { n: "BANCO FLEXOR BILATERAL - INI", v: "e0_xHkXw350" },
+                { n: "LEG PRESS 45 - AVA", v: "waAxlYvtCcI" },
+                { n: "PANTURRILHA APARELHO VERTICAL - INT", v: "smIfc3JFDDM" },
+                { n: "BANCO ADUTOR - INI", v: "WT5qhJZkeYI" }
             ],
-            'Treino C (Costas/Bíceps/Ombro)': [
-                { n: "Pulley Frente Pronada Aberta", d: "Puxe a barra até o peito abrindo as costas.", v: "hTaY3y09eLc" },
-                { n: "Pulldown Máquina Pronado", d: "Puxe focando na grande dorsal.", v: "Y4Mq3y2vzLw" },
-                { n: "Remada Baixa Neutra Fechada", d: "Puxe o triângulo no umbigo.", v: "3kqjkP7kqVM" },
-                { n: "Rosca Scott Aparelho", d: "Flexão de braço isolada no banco scott.", v: "VCCmzbShrTM" },
-                { n: "Rosca Alternada com Halteres", d: "Gire o punho durante a subida.", v: "cXk2mUsUsxg" },
-                { n: "Rosca Martelo", d: "Pegada neutra (palmas para dentro).", v: "RejYUX31uVo" },
-                { n: "Desenvolvimento no Aparelho", d: "Sentado na máquina, empurre os braços para cima.", v: "JuyMBSvOrjs" },
-                { n: "Abdominal Infra na Barra Paralela", d: "Eleve as pernas suspenso na paralela.", v: "C3G85e6uquk" },
-                { n: "Abdominal Supra no Aparelho", d: "Flexão de tronco na máquina.", v: "r2aglFL7vKs" }
+            'Treino C': [
+                { n: "ABDOMINAL INFRA NA BARRA PARALELA - INT", v: "OcjLM6Weh-0" },
+                { n: "ABDOMINAL SUPRA NO APARELHO - INT", v: "jqnwfqpvo9U" },
+                { n: "PULLDOWN MAQUINA PRONADO - INT", v: "ATCAVE0I5K4" },
+                { n: "PULLEY FRENTE PRONADA ABERTA - INT", v: "hXitE7MOLgo" },
+                { n: "REMADA BAIXA NEUTRA FECHADA - INI", v: "sOA-70A6wLY" },
+                { n: "ROSCA SCOTT APARELHO - INT", v: "faBk2akE0mQ" },
+                { n: "ROSCA ALTERNADA COM HALTERES - INI", v: "ZvHOiAVh6Bk" },
+                { n: "DESENVOLVIMENTO NO APARELHO - INI", v: "mkpWMl3SOeQ" },
+                { n: "ROSCA MARTELO", v: "CTTsTVZM3Uk" }
             ]
         };
 
@@ -75,15 +74,12 @@
                 <div class="ex-item" id="it-${id}">
                     <div class="ex-header">
                         <span class="ex-name" onclick="const c = document.getElementById('co-${id}'); c.style.display = c.style.display === 'block' ? 'none' : 'block'">${ex.n}</span>
-                        <div class="input-row">
-                            <input type="number" value="${p}" placeholder="Kg" onchange="localStorage.setItem('p-${id}', this.value)">
-                        </div>
+                        <input type="number" value="${p}" placeholder="kg" onchange="localStorage.setItem('p-${id}', this.value)">
                         <button class="btn-check" onclick="document.getElementById('it-${id}').classList.toggle('ex-done')">✅</button>
                     </div>
                     <div class="ex-content" id="co-${id}">
-                        <p style="margin-top:0; font-size:13px; color:#bbb;">${ex.d}</p>
                         <div class="video-wrap">
-                            <iframe src="https://www.youtube.com/embed/${ex.v}?modestbranding=1&rel=0" allowfullscreen></iframe>
+                            <iframe src="https://www.youtube.com/embed/${ex.v}" allowfullscreen></iframe>
                         </div>
                     </div>
                 </div>`;
