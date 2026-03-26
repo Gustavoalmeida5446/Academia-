@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Treino Gustavo - Pratique</title>
+    <title>Treino Pratique - Gustavo</title>
     <style>
         body { font-family: -apple-system, system-ui, sans-serif; background: #121212; color: #eee; margin: 0; padding: 10px; }
         .container { max-width: 600px; margin: auto; }
@@ -22,7 +22,6 @@
         .video-wrap iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
         .input-row { display: flex; align-items: center; gap: 8px; color: #aaa; font-size: 14px; }
         input[type="number"] { background: #333; border: 1px solid #555; color: white; padding: 6px; width: 55px; border-radius: 4px; text-align: center; outline: none; }
-        input[type="number"]:focus { border-color: #ff3e3e; }
     </style>
 </head>
 <body>
@@ -34,34 +33,34 @@
     <script>
         const dados = {
             'Treino A (Peito/Tríc/Ombro)': [
-                { n: "Supino Reto Barra", d: "Desça a barra até o peito e suba.", v: "sqOw2Y6uDWQ" },
-                { n: "Peitoral Voador (Pec Deck)", d: "Feche os braços focando na contração do peito.", v: "eGjt4P-UunE" },
-                { n: "Encolhimento de Ombros", d: "Eleve os ombros em direção às orelhas.", v: "aw8U7V_mP6M" },
+                { n: "Supino Reto Barra", d: "Desça a barra até o peito e suba.", v: "A02r9Z1N9iY" },
+                { n: "Peitoral Voador", d: "Feche os braços focando na contração do peito.", v: "eGjt4P-UunE" },
+                { n: "Encolhimento de Ombros", d: "Eleve os ombros (trapézio).", v: "nKwYX4yUThA" },
                 { n: "Desenvolvimento c/ Halteres", d: "Empurre os pesos acima da cabeça.", v: "M2rwvNhS90c" },
-                { n: "Tríceps Corda no Cross", d: "Mantenha cotovelos fixos e abra a corda embaixo.", v: "6YmZ009N5_M" },
-                { n: "Tríceps Francês Unilateral", d: "Flexão de cotovelo atrás da nuca.", v: "49zKsc_FqF0" },
-                { n: "Tríceps Pulley (Barra)", d: "Extensão de braço no cabo com barra reta.", v: "Zp6_V_G_24E" },
-                { n: "Abdominal Canivete", d: "Encontre mãos e pés no topo do movimento.", v: "Z4uWnL7E5v0" }
+                { n: "Tríceps Corda no Cross", d: "Cotovelos fixos, abra a corda embaixo.", v: "6YmZ009N5_M" },
+                { n: "Tríceps Francês Unilateral", d: "Flexão atrás da nuca.", v: "49zKsc_FqF0" },
+                { n: "Tríceps Pulley", d: "Extensão no cabo com barra.", v: "Zp6_V_G_24E" },
+                { n: "Abdominal Canivete", d: "Mãos e pés se encontram no topo.", v: "Z4uWnL7E5v0" }
             ],
             'Treino B (Pernas)': [
                 { n: "Agachamento Barra Guiada", d: "Agache mantendo a coluna reta.", v: "6_uVq8SUp0I" },
                 { n: "Leg Press 45", d: "Empurre sem esticar totalmente o joelho.", v: "E6M8L4D3u_M" },
-                { n: "Banco Extensor", d: "Chute para cima focando no quadríceps.", v: "6u4mZfM_H8o" },
+                { n: "Banco Extensor", d: "Chute para cima (quadríceps).", v: "6u4mZfM_H8o" },
                 { n: "Banco Flexor", d: "Puxe o rolo em direção ao glúteo.", v: "O-2j9YnBfSc" },
                 { n: "Banco Abdutor", d: "Abra as pernas contra a resistência.", v: "U-6Y0Y_rX2I" },
-                { n: "Banco Adutor", d: "Feche as pernas focando na parte interna.", v: "3Vv_U-8uCIs" },
+                { n: "Banco Adutor", d: "Feche as pernas.", v: "3Vv_U-8uCIs" },
                 { n: "Panturrilha Vertical", d: "Movimento de ponta de pé máximo.", v: "X8m_v7_6zGk" },
-                { n: "Abdominal Oblíquo Solo", d: "Flexão lateral do tronco no solo.", v: "Z4uWnL7E5v0" }
+                { n: "Abdominal Oblíquo Solo", d: "Flexão lateral do tronco.", v: "Z4uWnL7E5v0" }
             ],
             'Treino C (Costas/Bíceps)': [
-                { n: "Pulley Frente Aberta", d: "Puxe a barra até o peito abrindo as costas.", v: "6u4_mI_A_u0" },
+                { n: "Pulley Frente Aberta", d: "Puxe a barra até o peito.", v: "6u4_mI_A_u0" },
                 { n: "Pulldown Máquina", d: "Puxe focando na grande dorsal.", v: "6u4mYmN_8u0" },
                 { n: "Remada Baixa Neutra", d: "Puxe o triângulo no umbigo.", v: "6u4mZfM_H8o" },
-                { n: "Rosca Scott Aparelho", d: "Flexão de braço isolada no banco.", v: "O-2j9YnBfSc" },
-                { n: "Rosca Alternada", d: "Flexão de braço alternando os lados.", v: "X8m_v7_6zGk" },
+                { n: "Rosca Scott Aparelho", d: "Flexão isolada no banco.", v: "O-2j9YnBfSc" },
+                { n: "Rosca Alternada", d: "Flexão alternando os lados.", v: "X8m_v7_6zGk" },
                 { n: "Rosca Martelo", d: "Pegada neutra (palmas para dentro).", v: "X8m_v7_6zGk" },
-                { n: "Desenvolvimento Máquina", d: "Empurre os braços da máquina para cima.", v: "M2rwvNhS90c" },
-                { n: "Abdominal Infra Paralela", d: "Eleve as pernas suspenso na paralela.", v: "Z4uWnL7E5v0" },
+                { n: "Desenvolvimento Máquina", d: "Empurre os braços para cima.", v: "M2rwvNhS90c" },
+                { n: "Abdominal Infra Paralela", d: "Eleve as pernas suspenso.", v: "Z4uWnL7E5v0" },
                 { n: "Abdominal Supra Aparelho", d: "Flexão de tronco na máquina.", v: "Z4uWnL7E5v0" }
             ]
         };
@@ -82,7 +81,7 @@
                         <button class="btn-check" onclick="document.getElementById('it-${id}').classList.toggle('ex-done')">✅</button>
                     </div>
                     <div class="ex-content" id="co-${id}">
-                        <p style="margin-top:0">${ex.d}</p>
+                        <p style="margin-top:0; font-size:13px; color:#bbb;">${ex.d}</p>
                         <div class="video-wrap">
                             <iframe src="https://www.youtube.com/embed/${ex.v}?modestbranding=1&rel=0" allowfullscreen></iframe>
                         </div>
