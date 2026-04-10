@@ -7,186 +7,256 @@
   <style>
     :root {
       --bg: #0f172a;
-      --bg-2: #111827;
-      --card: #1f2937;
-      --card-2: #243244;
+      --bg2: #020617;
+      --card: #111827;
+      --card2: #1f2937;
+      --line: #334155;
       --text: #f8fafc;
       --muted: #cbd5e1;
-      --line: #334155;
+      --blue: #2563eb;
       --green: #22c55e;
-      --blue: #38bdf8;
       --red: #ef4444;
-      --shadow: 0 10px 30px rgba(0,0,0,.25);
+      --yellow: #f59e0b;
       --radius: 18px;
+      --shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
     }
-    * { box-sizing: border-box; }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
-      background: linear-gradient(180deg, #0f172a 0%, #020617 100%);
+      background: linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
       color: var(--text);
       min-height: 100vh;
     }
+
     .container {
       width: min(980px, calc(100% - 24px));
       margin: 24px auto 40px;
     }
-    .hero {
-      background: linear-gradient(180deg, rgba(56,189,248,.14), rgba(34,197,94,.08));
-      border: 1px solid rgba(148,163,184,.14);
-      border-radius: 24px;
-      padding: 20px;
-      box-shadow: var(--shadow);
-      margin-bottom: 18px;
-    }
-    h1 {
-      margin: 0 0 8px;
-      font-size: 1.75rem;
-    }
-    .subtitle {
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.45;
-    }
-    .panel {
-      background: rgba(31,41,55,.94);
-      border: 1px solid rgba(148,163,184,.14);
-      border-radius: var(--radius);
+
+    .card {
+      background: rgba(17, 24, 39, 0.95);
+      border: 1px solid rgba(148, 163, 184, 0.15);
+      border-radius: 22px;
       box-shadow: var(--shadow);
       overflow: hidden;
       margin-bottom: 16px;
     }
-    .panel-body {
-      padding: 16px;
+
+    .card-body {
+      padding: 18px;
     }
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 12px;
+
+    .hero {
+      background: linear-gradient(180deg, rgba(37, 99, 235, 0.16), rgba(34, 197, 94, 0.08));
     }
-    .stat {
-      background: rgba(15,23,42,.55);
-      border: 1px solid rgba(148,163,184,.12);
-      border-radius: 14px;
-      padding: 14px;
+
+    h1, h2, h3, p {
+      margin-top: 0;
     }
-    .stat small {
-      display: block;
+
+    .muted {
       color: var(--muted);
-      margin-bottom: 6px;
     }
-    .stat strong {
-      font-size: 1.25rem;
-    }
-    .controls {
+
+    .row {
       display: grid;
-      grid-template-columns: 1fr auto auto;
       gap: 12px;
-      align-items: end;
     }
+
+    .row-2 {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .row-3 {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .row-4 {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
     .field {
       display: grid;
       gap: 6px;
     }
+
     label {
+      font-size: 0.92rem;
       color: var(--muted);
-      font-size: .92rem;
     }
-    input[type="number"], input[type="date"] {
+
+    input {
       width: 100%;
       background: #0f172a;
       color: var(--text);
       border: 1px solid var(--line);
       border-radius: 12px;
       padding: 12px 14px;
-      font-size: 1rem;
       outline: none;
+      font-size: 1rem;
     }
+
     input:focus {
-      border-color: var(--blue);
-      box-shadow: 0 0 0 3px rgba(56,189,248,.12);
+      border-color: #60a5fa;
+      box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.14);
     }
+
     button {
       border: 0;
       border-radius: 12px;
       padding: 12px 14px;
-      font-size: .95rem;
       cursor: pointer;
       color: white;
-      background: #2563eb;
+      background: var(--blue);
+      font-size: 0.95rem;
       min-height: 46px;
     }
-    button.secondary { background: #334155; }
-    button.danger { background: var(--red); }
-    details {
-      border-top: 1px solid rgba(148,163,184,.12);
+
+    button.secondary {
+      background: #334155;
     }
+
+    button.success {
+      background: var(--green);
+    }
+
+    button.danger {
+      background: var(--red);
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: bold;
+      background: #1e293b;
+      color: #cbd5e1;
+      border: 1px solid rgba(148, 163, 184, 0.16);
+    }
+
+    .badge.online {
+      background: rgba(34, 197, 94, 0.18);
+      color: #bbf7d0;
+      border-color: rgba(34, 197, 94, 0.28);
+    }
+
+    .badge.offline {
+      background: rgba(245, 158, 11, 0.18);
+      color: #fde68a;
+      border-color: rgba(245, 158, 11, 0.28);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .stat {
+      background: rgba(15, 23, 42, 0.62);
+      border: 1px solid rgba(148, 163, 184, 0.12);
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .stat small {
+      display: block;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .stat strong {
+      font-size: 1.2rem;
+    }
+
+    details {
+      border-top: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
     details:first-child {
       border-top: 0;
     }
+
     summary {
       list-style: none;
       cursor: pointer;
     }
+
     summary::-webkit-details-marker {
       display: none;
     }
-    .workout-summary, .exercise-summary {
+
+    .workout-summary,
+    .exercise-summary {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 16px;
+      gap: 12px;
       padding: 16px 18px;
     }
+
     .workout-summary {
-      background: rgba(36,50,68,.92);
+      background: rgba(31, 41, 55, 0.9);
     }
+
     .exercise-summary {
-      background: rgba(15,23,42,.42);
+      background: rgba(15, 23, 42, 0.44);
     }
-    .left {
+
+    .summary-left {
       display: grid;
       gap: 4px;
     }
-    .left small {
+
+    .summary-left small {
       color: var(--muted);
     }
-    .badge {
-      white-space: nowrap;
-      background: #86efac;
-      color: #052e16;
-      font-weight: bold;
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: .82rem;
-    }
+
     .exercise-body {
       padding: 0 18px 18px;
       display: grid;
       gap: 14px;
     }
+
     .exercise-grid {
       display: grid;
       grid-template-columns: 1fr 160px;
       gap: 12px;
       align-items: end;
     }
+
     .check {
       display: flex;
-      gap: 10px;
       align-items: center;
-      font-size: .98rem;
+      gap: 10px;
+      font-size: 0.98rem;
+      color: var(--text);
     }
-    .check input {
+
+    .check input[type="checkbox"] {
       width: 20px;
       height: 20px;
       accent-color: var(--green);
     }
+
     .links {
       display: flex;
-      gap: 10px;
       flex-wrap: wrap;
+      gap: 10px;
     }
+
     .link-btn {
       display: inline-block;
       text-decoration: none;
@@ -194,281 +264,251 @@
       color: white;
       padding: 10px 12px;
       border-radius: 10px;
-      font-size: .94rem;
+      font-size: 0.94rem;
     }
-    .small {
-      font-size: .9rem;
-      color: var(--muted);
-    }
+
     .done {
       color: #86efac;
       font-weight: bold;
     }
+
+    .pending {
+      color: #fca5a5;
+      font-weight: bold;
+    }
+
+    .helper {
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
     .footer {
       text-align: center;
       color: var(--muted);
-      font-size: .9rem;
-      margin-top: 18px;
+      font-size: 0.9rem;
+      margin-top: 16px;
     }
-    @media (max-width: 760px) {
-      .stats {
-        grid-template-columns: 1fr 1fr;
-      }
-      .controls {
-        grid-template-columns: 1fr;
-      }
+
+    @media (max-width: 780px) {
+      .row-2,
+      .row-3,
+      .row-4,
+      .stats,
       .exercise-grid {
         grid-template-columns: 1fr;
-      }
-      .workout-summary, .exercise-summary {
-        align-items: start;
       }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <section class="hero">
-      <h1>Treino A / B / C</h1>
-      <p class="subtitle">Arquivo único com HTML, CSS e JS embutidos. Salva no navegador os pesos, os checks dos exercícios e seu peso corporal.</p>
+    <section class="card hero">
+      <div class="card-body">
+        <h1>Treino A / B / C</h1>
+        <p class="muted">
+          Página única com HTML, CSS e JS embutidos. Salva no Supabase quando você estiver logado
+          e usa localStorage como fallback.
+        </p>
+        <div class="button-row">
+          <span id="syncBadge" class="badge offline">Modo local</span>
+          <span id="userBadge" class="badge">Não logado</span>
+        </div>
+      </div>
     </section>
 
-    <section class="panel">
-      <div class="panel-body">
-        <div class="controls">
+    <section class="card">
+      <div class="card-body">
+        <h2>Login</h2>
+
+        <div id="authBox">
+          <div class="row row-2">
+            <div class="field">
+              <label for="email">Email</label>
+              <input id="email" type="email" placeholder="seuemail@exemplo.com" />
+            </div>
+
+            <div class="field">
+              <label for="password">Senha</label>
+              <input id="password" type="password" placeholder="Sua senha" />
+            </div>
+          </div>
+
+          <div class="button-row" style="margin-top: 12px;">
+            <button id="signUpBtn">Cadastrar</button>
+            <button id="signInBtn" class="success">Entrar</button>
+          </div>
+
+          <p class="helper" style="margin-top: 10px;">
+            Se você não estiver logado, os dados ficam só no navegador atual.
+          </p>
+        </div>
+
+        <div id="loggedBox" class="hidden">
+          <p id="loggedText" class="muted"></p>
+          <div class="button-row">
+            <button id="syncNowBtn" class="success">Sincronizar agora</button>
+            <button id="signOutBtn" class="secondary">Sair</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-body">
+        <h2>Controle geral</h2>
+
+        <div class="row row-3">
           <div class="field">
             <label for="bodyWeight">Peso corporal (kg)</label>
             <input id="bodyWeight" type="number" step="0.1" placeholder="Ex: 67.0" />
           </div>
+
           <div class="field">
             <label for="recordDate">Data</label>
             <input id="recordDate" type="date" />
           </div>
-          <div class="links">
-            <button id="saveBodyWeight">Salvar peso</button>
-            <button class="secondary" id="markAllOpen">Abrir todos</button>
-            <button class="danger" id="resetData">Limpar dados</button>
+
+          <div class="field">
+            <label>&nbsp;</label>
+            <button id="saveBodyWeightBtn">Salvar peso corporal</button>
           </div>
+        </div>
+
+        <div class="button-row" style="margin-top: 12px;">
+          <button id="openAllBtn" class="secondary">Abrir todos</button>
+          <button id="closeAllBtn" class="secondary">Fechar todos</button>
+          <button id="clearChecksBtn" class="secondary">Desmarcar tudo</button>
+          <button id="clearAllBtn" class="danger">Apagar tudo</button>
         </div>
       </div>
     </section>
 
     <section class="stats">
-      <div class="stat panel">
-        <div class="panel-body">
+      <div class="stat card">
+        <div class="card-body">
           <small>Exercícios concluídos</small>
           <strong id="doneCount">0</strong>
         </div>
       </div>
-      <div class="stat panel">
-        <div class="panel-body">
+
+      <div class="stat card">
+        <div class="card-body">
           <small>Total de exercícios</small>
           <strong id="totalCount">0</strong>
         </div>
       </div>
-      <div class="stat panel">
-        <div class="panel-body">
+
+      <div class="stat card">
+        <div class="card-body">
           <small>Último peso corporal</small>
           <strong id="lastBodyWeight">-</strong>
         </div>
       </div>
-      <div class="stat panel">
-        <div class="panel-body">
+
+      <div class="stat card">
+        <div class="card-body">
           <small>Última atualização</small>
           <strong id="lastUpdate">-</strong>
         </div>
       </div>
     </section>
 
-    <section class="panel" id="workoutsContainer"></section>
+    <section class="card" style="margin-top: 16px;">
+      <div id="workoutsContainer"></div>
+    </section>
 
-    <p class="footer">Os links de vídeo abrem uma busca do YouTube para o exercício, porque isso costuma funcionar melhor quando há variação no nome da máquina da academia.</p>
+    <p class="footer">
+      Os links de vídeo abrem uma busca do YouTube para o exercício, porque o nome exato pode variar conforme a academia.
+    </p>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
+    // ==========================================
+    // 1) CONFIGURAÇÃO DO SUPABASE
+    // ==========================================
+    const SUPABASE_URL = "https://vzduymscsnuwbolucnag.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_ghU7U0ZmZ95f7PhjMvuZLw_Io4N_BMZ";
+
+    const LOCAL_STORAGE_KEY = "gustavo_treino_abc_local_v2";
+
     const workouts = {
-  "Treino A": [
-    {
-      "name": "Supino reto barra",
-      "sets": "4",
-      "reps": "6–10",
-      "videoQuery": "supino reto barra execução"
-    },
-    {
-      "name": "Peitoral voador",
-      "sets": "3",
-      "reps": "10–12",
-      "videoQuery": "peitoral voador execução"
-    },
-    {
-      "name": "Desenvolvimento com halteres",
-      "sets": "3",
-      "reps": "8–10",
-      "videoQuery": "desenvolvimento com halteres execução"
-    },
-    {
-      "name": "Encolhimento de ombros",
-      "sets": "3",
-      "reps": "10–12",
-      "videoQuery": "encolhimento de ombros execução"
-    },
-    {
-      "name": "Tríceps corda no cross over",
-      "sets": "3",
-      "reps": "10–12",
-      "videoQuery": "triceps corda no crossover execução"
-    },
-    {
-      "name": "Tríceps francês unilateral com halter",
-      "sets": "3",
-      "reps": "10–12",
-      "videoQuery": "triceps francês unilateral halter execução"
-    },
-    {
-      "name": "Tríceps pulley",
-      "sets": "2",
-      "reps": "12–15",
-      "videoQuery": "triceps pulley execução"
-    },
-    {
-      "name": "Lombar no aparelho",
-      "sets": "3",
-      "reps": "12–15",
-      "videoQuery": "lombar no aparelho execução"
+      "Treino A": [
+        { name: "Supino reto barra", sets: "4", reps: "6–10", videoQuery: "supino reto barra execução" },
+        { name: "Peitoral voador", sets: "3", reps: "10–12", videoQuery: "peitoral voador execução" },
+        { name: "Desenvolvimento com halteres", sets: "3", reps: "8–10", videoQuery: "desenvolvimento com halteres execução" },
+        { name: "Encolhimento de ombros", sets: "3", reps: "10–12", videoQuery: "encolhimento de ombros execução" },
+        { name: "Tríceps corda no cross over", sets: "3", reps: "10–12", videoQuery: "triceps corda crossover execução" },
+        { name: "Tríceps francês unilateral com halter", sets: "3", reps: "10–12", videoQuery: "triceps francês unilateral halter execução" },
+        { name: "Tríceps pulley", sets: "2", reps: "12–15", videoQuery: "triceps pulley execução" },
+        { name: "Lombar no aparelho", sets: "3", reps: "12–15", videoQuery: "lombar no aparelho execução" }
+      ],
+      "Treino B": [
+        { name: "Agachamento na barra guiada", sets: "4", reps: "6–10", videoQuery: "agachamento smith execução" },
+        { name: "Leg press 45", sets: "3", reps: "10–12", videoQuery: "leg press 45 execução" },
+        { name: "Banco extensor bilateral", sets: "3", reps: "12–15", videoQuery: "cadeira extensora execução" },
+        { name: "Banco flexor bilateral", sets: "3", reps: "12–15", videoQuery: "mesa flexora execução" },
+        { name: "Banco abdutor", sets: "2", reps: "12–15", videoQuery: "abdutor máquina execução" },
+        { name: "Banco adutor", sets: "2", reps: "12–15", videoQuery: "adutor máquina execução" },
+        { name: "Panturrilha aparelho vertical", sets: "4", reps: "12–15", videoQuery: "panturrilha aparelho vertical execução" },
+        { name: "Abdominal máquina (crunch sentado)", sets: "3", reps: "12–15", videoQuery: "abdominal máquina crunch sentado execução" }
+      ],
+      "Treino C": [
+        { name: "Pulldown máquina pronado", sets: "4", reps: "8–10", videoQuery: "pulldown máquina pronado execução" },
+        { name: "Pulley frente pronada aberta", sets: "3", reps: "10–12", videoQuery: "pulley frente pronada aberta execução" },
+        { name: "Remada baixa neutra fechada", sets: "3", reps: "10–12", videoQuery: "remada baixa neutra fechada execução" },
+        { name: "Desenvolvimento no aparelho", sets: "3", reps: "10–12", videoQuery: "desenvolvimento no aparelho execução" },
+        { name: "Rosca Scott aparelho", sets: "3", reps: "10–12", videoQuery: "rosca scott aparelho execução" },
+        { name: "Rosca alternada com halteres", sets: "3", reps: "10–12", videoQuery: "rosca alternada com halteres execução" },
+        { name: "Rosca martelo", sets: "2", reps: "12–15", videoQuery: "rosca martelo execução" },
+        { name: "Abdominal infra na barra paralela", sets: "3", reps: "10–15", videoQuery: "abdominal infra barra paralela execução" },
+        { name: "Abdominal supra no aparelho", sets: "3", reps: "10–15", videoQuery: "abdominal supra aparelho execução" }
+      ]
+    };
+
+    let supabase = null;
+    let state = null;
+    let currentUser = null;
+
+    // ==========================================
+    // 2) ESTADO LOCAL
+    // ==========================================
+    function makeExerciseKey(workoutName, exerciseName) {
+      return `${workoutName}__${exerciseName}`;
     }
-  ],
-  "Treino B": [
-    {
-      "name": "Agachamento na barra guiada",
-      "sets": "4",
-      "reps": "6–10",
-      "videoQuery": "agachamento na barra guiada smith execução"
-    },
-    {
-      "name": "Leg press 45",
-      "sets": "3",
-      "reps": "10–12",
-      "videoQuery": "leg press 45 execução"
-    },
-    {
-      "name": "Banco extensor bilateral",
-      "sets": "3",
-      "reps": "12–15",
-      "videoQuery": "cadeira extensora execução"
-    },
-    {
-      "name": "Banco flexor bilateral",
-      "sets": "3",
-      "reps": "12–15",
-      "videoQuery": "mesa flexora execução"
-    },
-    {
-      "name": "Banco abdutor",
-      "sets": "2",
-      "reps": "12–15",
-      "videoQuery": "abdutor máquina execução"
-    },
-    {
-      "name": "Banco adutor",
-      "sets": "2",
-      "reps": "12–15",
-      "videoQuery": "adutor máquina execução"
-    },
-    {
-      "name": "Panturrilha aparelho vertical",
-      "sets": "4",
-      "reps": "12–15",
-      "videoQuery": "panturrilha aparelho vertical execução"
-    },
-    {
-      "name": "Abdominal máquina (crunch sentado)",
-      "sets": "3",
-      "reps": "12–15",
-      "videoQuery": "abdominal máquina crunch sentado execução"
-    }
-  ],
-  "Treino C": [
-    {
-      "name": "Pulldown máquina pronado",
-      "sets": "4",
-      "reps": "8–10",
-      "videoQuery": "pulldown máquina pronado execução"
-    },
-    {
-      "name": "Pulley frente pronada aberta",
-      "sets": "3",
-      "reps": "10–12",
-      "videoQuery": "pulley frente pronada aberta execução"
-    },
-    {
-      "name": "Remada baixa neutra fechada",
-      "sets": "3",
-      "reps": "10–12",
-      "videoQuery": "remada baixa neutra fechada execução"
-    },
-    {
-      "name": "Desenvolvimento no aparelho",
-      "sets": "3",
-      "reps": "10–12",
-      "videoQuery": "desenvolvimento no aparelho execução"
-    },
-    {
-      "name": "Rosca Scott aparelho",
-      "sets": "3",
-      "reps": "10–12",
-      "videoQuery": "rosca scott aparelho execução"
-    },
-    {
-      "name": "Rosca alternada com halteres",
-      "sets": "3",
-      "reps": "10–12",
-      "videoQuery": "rosca alternada com halteres execução"
-    },
-    {
-      "name": "Rosca martelo",
-      "sets": "2",
-      "reps": "12–15",
-      "videoQuery": "rosca martelo execução"
-    },
-    {
-      "name": "Abdominal infra na barra paralela",
-      "sets": "3",
-      "reps": "10–15",
-      "videoQuery": "abdominal infra barra paralela execução"
-    },
-    {
-      "name": "Abdominal supra no aparelho",
-      "sets": "3",
-      "reps": "10–15",
-      "videoQuery": "abdominal supra aparelho execução"
-    }
-  ]
-};
-    const STORAGE_KEY = "gustavo_treino_abc_v1";
 
     function defaultState() {
-      const exerciseState = {};
-      Object.entries(workouts).forEach(([workoutName, exercises]) => {
-        exercises.forEach((exercise) => {
-          const key = makeKey(workoutName, exercise.name);
-          exerciseState[key] = {
+      const exercises = {};
+
+      Object.entries(workouts).forEach(([workoutName, items]) => {
+        items.forEach((exercise) => {
+          const key = makeExerciseKey(workoutName, exercise.name);
+          exercises[key] = {
+            workout: workoutName,
+            exercise: exercise.name,
             checked: false,
-            weight: "",
+            usedWeight: "",
             updatedAt: ""
           };
         });
       });
+
       return {
         bodyWeight: "",
         bodyWeightDate: "",
         lastUpdate: "",
-        exercises: exerciseState
+        exercises
       };
     }
 
-    function loadState() {
+    function loadLocalState() {
       try {
-        const raw = localStorage.getItem(STORAGE_KEY);
+        const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
         if (!raw) return defaultState();
         const parsed = JSON.parse(raw);
         return mergeState(parsed);
@@ -479,7 +519,8 @@
 
     function mergeState(saved) {
       const base = defaultState();
-      const merged = {
+
+      return {
         ...base,
         ...saved,
         exercises: {
@@ -487,18 +528,20 @@
           ...(saved.exercises || {})
         }
       };
-      return merged;
     }
 
-    function saveState() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    function saveLocalState() {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
       updateStats();
     }
 
-    function makeKey(workoutName, exerciseName) {
-      return `${workoutName}__${exerciseName}`;
+    function clearLocalState() {
+      localStorage.removeItem(LOCAL_STORAGE_KEY);
     }
 
+    // ==========================================
+    // 3) HELPERS
+    // ==========================================
     function formatDate(dateString) {
       if (!dateString) return "-";
       const date = new Date(dateString + (dateString.length <= 10 ? "T00:00:00" : ""));
@@ -517,99 +560,6 @@
       return `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
     }
 
-    function renderWorkouts() {
-      const container = document.getElementById("workoutsContainer");
-      container.innerHTML = "";
-
-      Object.entries(workouts).forEach(([workoutName, exercises], workoutIndex) => {
-        const workoutDetails = document.createElement("details");
-        if (workoutIndex === 0) workoutDetails.open = true;
-
-        const workoutDone = exercises.filter((exercise) => {
-          const item = state.exercises[makeKey(workoutName, exercise.name)];
-          return item && item.checked;
-        }).length;
-
-        const workoutSummary = document.createElement("summary");
-        workoutSummary.className = "workout-summary";
-        workoutSummary.innerHTML = `
-          <div class="left">
-            <strong>${workoutName}</strong>
-            <small>${exercises.length} exercícios</small>
-          </div>
-          <span class="badge">${workoutDone} / ${exercises.length} concluídos</span>
-        `;
-        workoutDetails.appendChild(workoutSummary);
-
-        exercises.forEach((exercise, exerciseIndex) => {
-          const exerciseDetails = document.createElement("details");
-          if (exerciseIndex === 0) exerciseDetails.open = false;
-
-          const key = makeKey(workoutName, exercise.name);
-          const exerciseData = state.exercises[key];
-
-          const exerciseSummary = document.createElement("summary");
-          exerciseSummary.className = "exercise-summary";
-          exerciseSummary.innerHTML = `
-            <div class="left">
-              <strong>${exercise.name}</strong>
-              <small>${exercise.sets} séries • ${exercise.reps} reps</small>
-            </div>
-            <span class="${exerciseData.checked ? "done" : ""}">${exerciseData.checked ? "Feito" : "Pendente"}</span>
-          `;
-          exerciseDetails.appendChild(exerciseSummary);
-
-          const exerciseBody = document.createElement("div");
-          exerciseBody.className = "exercise-body";
-
-          const grid = document.createElement("div");
-          grid.className = "exercise-grid";
-          grid.innerHTML = `
-            <label class="check">
-              <input type="checkbox" data-type="checked" data-key="${key}" ${exerciseData.checked ? "checked" : ""} />
-              <span>Marcar exercício como feito</span>
-            </label>
-            <div class="field">
-              <label for="weight-${sanitizeId(key)}">Peso usado (kg)</label>
-              <input
-                id="weight-${sanitizeId(key)}"
-                type="number"
-                step="0.5"
-                min="0"
-                data-type="weight"
-                data-key="${key}"
-                value="${exerciseData.weight}"
-                placeholder="Ex: 20"
-              />
-            </div>
-          `;
-
-          const info = document.createElement("div");
-          info.className = "small";
-          info.textContent = exerciseData.updatedAt
-            ? `Última alteração: ${formatDateTime(exerciseData.updatedAt)}`
-            : "Sem registro ainda";
-
-          const links = document.createElement("div");
-          links.className = "links";
-          links.innerHTML = `
-            <a class="link-btn" href="${youtubeSearchLink(exercise.videoQuery)}" target="_blank" rel="noopener noreferrer">Ver execução</a>
-          `;
-
-          exerciseBody.appendChild(grid);
-          exerciseBody.appendChild(info);
-          exerciseBody.appendChild(links);
-          exerciseDetails.appendChild(exerciseBody);
-          workoutDetails.appendChild(exerciseDetails);
-        });
-
-        container.appendChild(workoutDetails);
-      });
-
-      bindInputs();
-      updateStats();
-    }
-
     function sanitizeId(value) {
       return value
         .normalize("NFD")
@@ -617,78 +567,599 @@
         .replace(/[^a-zA-Z0-9_-]/g, "-");
     }
 
-    function bindInputs() {
-      document.querySelectorAll('[data-type="checked"]').forEach((input) => {
-        input.addEventListener("change", (event) => {
-          const key = event.target.dataset.key;
-          state.exercises[key].checked = event.target.checked;
-          state.exercises[key].updatedAt = new Date().toISOString();
-          state.lastUpdate = new Date().toISOString();
-          saveState();
-          renderWorkouts();
-        });
-      });
+    function showMessage(message) {
+      alert(message);
+    }
 
-      document.querySelectorAll('[data-type="weight"]').forEach((input) => {
-        input.addEventListener("input", (event) => {
-          const key = event.target.dataset.key;
-          state.exercises[key].weight = event.target.value;
-          state.exercises[key].updatedAt = new Date().toISOString();
-          state.lastUpdate = new Date().toISOString();
-          saveState();
-        });
-      });
+    function updateBadges() {
+      const syncBadge = document.getElementById("syncBadge");
+      const userBadge = document.getElementById("userBadge");
+      const authBox = document.getElementById("authBox");
+      const loggedBox = document.getElementById("loggedBox");
+      const loggedText = document.getElementById("loggedText");
+
+      if (currentUser) {
+        syncBadge.textContent = "Sincronizando com Supabase";
+        syncBadge.className = "badge online";
+
+        userBadge.textContent = currentUser.email || "Logado";
+        userBadge.className = "badge online";
+
+        authBox.classList.add("hidden");
+        loggedBox.classList.remove("hidden");
+        loggedText.textContent = `Logado como ${currentUser.email}`;
+      } else {
+        syncBadge.textContent = "Modo local";
+        syncBadge.className = "badge offline";
+
+        userBadge.textContent = "Não logado";
+        userBadge.className = "badge";
+
+        authBox.classList.remove("hidden");
+        loggedBox.classList.add("hidden");
+      }
     }
 
     function updateStats() {
-      const allExercises = Object.keys(state.exercises);
-      const done = allExercises.filter((key) => state.exercises[key].checked).length;
+      const allKeys = Object.keys(state.exercises);
+      const doneCount = allKeys.filter((key) => state.exercises[key].checked).length;
 
-      document.getElementById("doneCount").textContent = String(done);
-      document.getElementById("totalCount").textContent = String(allExercises.length);
+      document.getElementById("doneCount").textContent = String(doneCount);
+      document.getElementById("totalCount").textContent = String(allKeys.length);
       document.getElementById("lastBodyWeight").textContent = state.bodyWeight ? `${state.bodyWeight} kg` : "-";
       document.getElementById("lastUpdate").textContent = formatDateTime(state.lastUpdate);
     }
 
-    function saveBodyWeight() {
+    // ==========================================
+    // 4) RENDER
+    // ==========================================
+    function renderWorkouts() {
+      const container = document.getElementById("workoutsContainer");
+      container.innerHTML = "";
+
+      Object.entries(workouts).forEach(([workoutName, exercises], workoutIndex) => {
+        const detailsWorkout = document.createElement("details");
+        if (workoutIndex === 0) {
+          detailsWorkout.open = true;
+        }
+
+        const doneInWorkout = exercises.filter((exercise) => {
+          const key = makeExerciseKey(workoutName, exercise.name);
+          return state.exercises[key]?.checked;
+        }).length;
+
+        const workoutSummary = document.createElement("summary");
+        workoutSummary.className = "workout-summary";
+        workoutSummary.innerHTML = `
+          <div class="summary-left">
+            <strong>${workoutName}</strong>
+            <small>${exercises.length} exercícios</small>
+          </div>
+          <span class="badge">${doneInWorkout} / ${exercises.length} concluídos</span>
+        `;
+        detailsWorkout.appendChild(workoutSummary);
+
+        exercises.forEach((exercise) => {
+          const key = makeExerciseKey(workoutName, exercise.name);
+          const exerciseState = state.exercises[key];
+
+          const detailsExercise = document.createElement("details");
+
+          const exerciseSummary = document.createElement("summary");
+          exerciseSummary.className = "exercise-summary";
+          exerciseSummary.innerHTML = `
+            <div class="summary-left">
+              <strong>${exercise.name}</strong>
+              <small>${exercise.sets} séries • ${exercise.reps} reps</small>
+            </div>
+            <span class="${exerciseState.checked ? "done" : "pending"}">
+              ${exerciseState.checked ? "Feito" : "Pendente"}
+            </span>
+          `;
+
+          const body = document.createElement("div");
+          body.className = "exercise-body";
+          body.innerHTML = `
+            <div class="exercise-grid">
+              <label class="check">
+                <input
+                  type="checkbox"
+                  data-action="toggle-check"
+                  data-key="${key}"
+                  ${exerciseState.checked ? "checked" : ""}
+                />
+                <span>Marcar exercício como feito</span>
+              </label>
+
+              <div class="field">
+                <label for="weight-${sanitizeId(key)}">Peso usado (kg)</label>
+                <input
+                  id="weight-${sanitizeId(key)}"
+                  type="number"
+                  step="0.5"
+                  min="0"
+                  placeholder="Ex: 20"
+                  value="${exerciseState.usedWeight}"
+                  data-action="weight-input"
+                  data-key="${key}"
+                />
+              </div>
+            </div>
+
+            <div class="helper">
+              Última alteração: ${exerciseState.updatedAt ? formatDateTime(exerciseState.updatedAt) : "sem registro"}
+            </div>
+
+            <div class="links">
+              <a
+                class="link-btn"
+                href="${youtubeSearchLink(exercise.videoQuery)}"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Ver execução
+              </a>
+            </div>
+          `;
+
+          detailsExercise.appendChild(exerciseSummary);
+          detailsExercise.appendChild(body);
+          detailsWorkout.appendChild(detailsExercise);
+        });
+
+        container.appendChild(detailsWorkout);
+      });
+
+      bindWorkoutEvents();
+      updateStats();
+    }
+
+    function bindWorkoutEvents() {
+      const checkboxes = document.querySelectorAll('[data-action="toggle-check"]');
+      const weightInputs = document.querySelectorAll('[data-action="weight-input"]');
+
+      checkboxes.forEach((checkbox) => {
+        checkbox.addEventListener("change", async (event) => {
+          const key = event.target.dataset.key;
+          state.exercises[key].checked = event.target.checked;
+          state.exercises[key].updatedAt = new Date().toISOString();
+          state.lastUpdate = new Date().toISOString();
+          saveLocalState();
+          renderWorkouts();
+
+          if (currentUser) {
+            await saveExerciseToSupabase(key);
+          }
+        });
+      });
+
+      weightInputs.forEach((input) => {
+        input.addEventListener("change", async (event) => {
+          const key = event.target.dataset.key;
+          state.exercises[key].usedWeight = event.target.value;
+          state.exercises[key].updatedAt = new Date().toISOString();
+          state.lastUpdate = new Date().toISOString();
+          saveLocalState();
+          renderWorkouts();
+
+          if (currentUser) {
+            await saveExerciseToSupabase(key);
+          }
+        });
+      });
+    }
+
+    // ==========================================
+    // 5) SUPABASE
+    // ==========================================
+    function createSupabaseClient() {
+      if (!SUPABASE_URL || SUPABASE_URL === "SUA_SUPABASE_URL") return null;
+      if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY === "SUA_SUPABASE_ANON_KEY") return null;
+
+      return window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+
+    async function signUp() {
+      if (!supabase) {
+        showMessage("Preencha a URL e a anon key do Supabase no código.");
+        return;
+      }
+
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      if (!email || !password) {
+        showMessage("Preencha email e senha.");
+        return;
+      }
+
+      const { error } = await supabase.auth.signUp({
+        email,
+        password
+      });
+
+      if (error) {
+        showMessage("Erro ao cadastrar: " + error.message);
+        return;
+      }
+
+      showMessage("Cadastro realizado. Agora faça login.");
+    }
+
+    async function signIn() {
+      if (!supabase) {
+        showMessage("Preencha a URL e a anon key do Supabase no código.");
+        return;
+      }
+
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      if (!email || !password) {
+        showMessage("Preencha email e senha.");
+        return;
+      }
+
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) {
+        showMessage("Erro ao entrar: " + error.message);
+        return;
+      }
+
+      currentUser = data.user || null;
+      updateBadges();
+      await syncAllToCloud();
+      await loadFromSupabase();
+      renderWorkouts();
+      showMessage("Login realizado com sucesso.");
+    }
+
+    async function signOut() {
+      if (!supabase) return;
+
+      const { error } = await supabase.auth.signOut();
+
+      if (error) {
+        showMessage("Erro ao sair: " + error.message);
+        return;
+      }
+
+      currentUser = null;
+      updateBadges();
+      state = loadLocalState();
+      renderWorkouts();
+      showMessage("Você saiu da conta.");
+    }
+
+    async function checkSession() {
+      if (!supabase) return;
+
+      const { data, error } = await supabase.auth.getSession();
+
+      if (error) {
+        return;
+      }
+
+      currentUser = data?.session?.user || null;
+      updateBadges();
+
+      if (currentUser) {
+        await syncAllToCloud();
+        await loadFromSupabase();
+        renderWorkouts();
+      }
+    }
+
+    async function saveExerciseToSupabase(key) {
+      if (!supabase || !currentUser) return;
+
+      const exerciseData = state.exercises[key];
+      if (!exerciseData) return;
+
+      const bodyWeightValue = state.bodyWeight === "" ? null : Number(state.bodyWeight);
+      const recordDateValue = state.bodyWeightDate || new Date().toISOString().slice(0, 10);
+
+      const { data: existingRows, error: selectError } = await supabase
+        .from("workout_logs")
+        .select("id")
+        .eq("user_id", currentUser.id)
+        .eq("workout", exerciseData.workout)
+        .eq("exercise", exerciseData.exercise)
+        .limit(1);
+
+      if (selectError) {
+        console.error(selectError);
+        return;
+      }
+
+      const payload = {
+        user_id: currentUser.id,
+        workout: exerciseData.workout,
+        exercise: exerciseData.exercise,
+        used_weight: exerciseData.usedWeight === "" ? null : Number(exerciseData.usedWeight),
+        done: !!exerciseData.checked,
+        body_weight: bodyWeightValue,
+        record_date: recordDateValue,
+        updated_at: new Date().toISOString()
+      };
+
+      if (existingRows && existingRows.length > 0) {
+        const rowId = existingRows[0].id;
+
+        const { error: updateError } = await supabase
+          .from("workout_logs")
+          .update(payload)
+          .eq("id", rowId);
+
+        if (updateError) {
+          console.error(updateError);
+        }
+      } else {
+        const { error: insertError } = await supabase
+          .from("workout_logs")
+          .insert(payload);
+
+        if (insertError) {
+          console.error(insertError);
+        }
+      }
+    }
+
+    async function saveBodyWeightToSupabase() {
+      if (!supabase || !currentUser) return;
+
+      const recordDateValue = state.bodyWeightDate || new Date().toISOString().slice(0, 10);
+      const bodyWeightValue = state.bodyWeight === "" ? null : Number(state.bodyWeight);
+
+      const keys = Object.keys(state.exercises);
+
+      for (const key of keys) {
+        const exerciseData = state.exercises[key];
+
+        const { data: existingRows, error: selectError } = await supabase
+          .from("workout_logs")
+          .select("id")
+          .eq("user_id", currentUser.id)
+          .eq("workout", exerciseData.workout)
+          .eq("exercise", exerciseData.exercise)
+          .limit(1);
+
+        if (selectError) {
+          console.error(selectError);
+          continue;
+        }
+
+        const payload = {
+          user_id: currentUser.id,
+          workout: exerciseData.workout,
+          exercise: exerciseData.exercise,
+          used_weight: exerciseData.usedWeight === "" ? null : Number(exerciseData.usedWeight),
+          done: !!exerciseData.checked,
+          body_weight: bodyWeightValue,
+          record_date: recordDateValue,
+          updated_at: new Date().toISOString()
+        };
+
+        if (existingRows && existingRows.length > 0) {
+          const rowId = existingRows[0].id;
+
+          const { error: updateError } = await supabase
+            .from("workout_logs")
+            .update(payload)
+            .eq("id", rowId);
+
+          if (updateError) {
+            console.error(updateError);
+          }
+        } else {
+          const { error: insertError } = await supabase
+            .from("workout_logs")
+            .insert(payload);
+
+          if (insertError) {
+            console.error(insertError);
+          }
+        }
+      }
+    }
+
+    async function syncAllToCloud() {
+      if (!supabase || !currentUser) return;
+
+      const keys = Object.keys(state.exercises);
+      for (const key of keys) {
+        await saveExerciseToSupabase(key);
+      }
+
+      await saveBodyWeightToSupabase();
+    }
+
+    async function loadFromSupabase() {
+      if (!supabase || !currentUser) return;
+
+      const { data, error } = await supabase
+        .from("workout_logs")
+        .select("*")
+        .eq("user_id", currentUser.id)
+        .order("updated_at", { ascending: false });
+
+      if (error) {
+        console.error(error);
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        return;
+      }
+
+      const newState = defaultState();
+
+      for (const row of data) {
+        const key = makeExerciseKey(row.workout, row.exercise);
+
+        if (newState.exercises[key]) {
+          newState.exercises[key].checked = !!row.done;
+          newState.exercises[key].usedWeight = row.used_weight ?? "";
+          newState.exercises[key].updatedAt = row.updated_at || "";
+        }
+
+        if (row.body_weight !== null && row.body_weight !== undefined) {
+          newState.bodyWeight = row.body_weight;
+        }
+
+        if (row.record_date) {
+          newState.bodyWeightDate = row.record_date;
+        }
+
+        if (row.updated_at) {
+          if (!newState.lastUpdate || new Date(row.updated_at) > new Date(newState.lastUpdate)) {
+            newState.lastUpdate = row.updated_at;
+          }
+        }
+      }
+
+      state = mergeState(newState);
+      saveLocalState();
+
+      document.getElementById("bodyWeight").value = state.bodyWeight || "";
+      document.getElementById("recordDate").value =
+        state.bodyWeightDate || new Date().toISOString().slice(0, 10);
+    }
+
+    // ==========================================
+    // 6) AÇÕES DA TELA
+    // ==========================================
+    async function saveBodyWeight() {
       const bodyWeightInput = document.getElementById("bodyWeight");
       const recordDateInput = document.getElementById("recordDate");
 
       state.bodyWeight = bodyWeightInput.value.trim();
       state.bodyWeightDate = recordDateInput.value;
       state.lastUpdate = new Date().toISOString();
-      saveState();
-      updateStats();
-      alert("Peso corporal salvo.");
+
+      saveLocalState();
+
+      if (currentUser) {
+        await saveBodyWeightToSupabase();
+      }
+
+      renderWorkouts();
+      showMessage("Peso corporal salvo.");
     }
 
-    function resetAllData() {
-      const confirmed = window.confirm("Tem certeza que deseja apagar todos os dados salvos?");
+    async function clearChecks() {
+      const confirmed = confirm("Deseja desmarcar todos os exercícios?");
       if (!confirmed) return;
-      state = defaultState();
-      saveState();
-      document.getElementById("bodyWeight").value = "";
-      document.getElementById("recordDate").value = "";
+
+      Object.keys(state.exercises).forEach((key) => {
+        state.exercises[key].checked = false;
+        state.exercises[key].updatedAt = new Date().toISOString();
+      });
+
+      state.lastUpdate = new Date().toISOString();
+      saveLocalState();
       renderWorkouts();
+
+      if (currentUser) {
+        await syncAllToCloud();
+      }
+    }
+
+    async function clearAllData() {
+      const confirmed = confirm("Tem certeza que deseja apagar todos os dados?");
+      if (!confirmed) return;
+
+      state = defaultState();
+      saveLocalState();
+      renderWorkouts();
+
+      document.getElementById("bodyWeight").value = "";
+      document.getElementById("recordDate").value = new Date().toISOString().slice(0, 10);
+
+      if (currentUser && supabase) {
+        const { error } = await supabase
+          .from("workout_logs")
+          .delete()
+          .eq("user_id", currentUser.id);
+
+        if (error) {
+          console.error(error);
+        }
+      }
+
+      showMessage("Todos os dados foram apagados.");
     }
 
     function openAllWorkouts() {
-      document.querySelectorAll("#workoutsContainer > details").forEach((details) => {
-        details.open = true;
+      document.querySelectorAll("#workoutsContainer > details").forEach((item) => {
+        item.open = true;
       });
     }
 
-    let state = loadState();
+    function closeAllWorkouts() {
+      document.querySelectorAll("#workoutsContainer > details").forEach((item) => {
+        item.open = false;
+      });
+    }
 
-    function init() {
+    // ==========================================
+    // 7) INIT
+    // ==========================================
+    function bindMainEvents() {
+      document.getElementById("signUpBtn").addEventListener("click", signUp);
+      document.getElementById("signInBtn").addEventListener("click", signIn);
+      document.getElementById("signOutBtn").addEventListener("click", signOut);
+      document.getElementById("syncNowBtn").addEventListener("click", async () => {
+        if (!currentUser) {
+          showMessage("Você precisa estar logado para sincronizar.");
+          return;
+        }
+
+        await syncAllToCloud();
+        await loadFromSupabase();
+        renderWorkouts();
+        showMessage("Sincronização concluída.");
+      });
+
+      document.getElementById("saveBodyWeightBtn").addEventListener("click", saveBodyWeight);
+      document.getElementById("openAllBtn").addEventListener("click", openAllWorkouts);
+      document.getElementById("closeAllBtn").addEventListener("click", closeAllWorkouts);
+      document.getElementById("clearChecksBtn").addEventListener("click", clearChecks);
+      document.getElementById("clearAllBtn").addEventListener("click", clearAllData);
+    }
+
+    async function init() {
+      supabase = createSupabaseClient();
+      state = loadLocalState();
+
       document.getElementById("bodyWeight").value = state.bodyWeight || "";
-      document.getElementById("recordDate").value = state.bodyWeightDate || new Date().toISOString().slice(0, 10);
+      document.getElementById("recordDate").value =
+        state.bodyWeightDate || new Date().toISOString().slice(0, 10);
 
-      document.getElementById("saveBodyWeight").addEventListener("click", saveBodyWeight);
-      document.getElementById("resetData").addEventListener("click", resetAllData);
-      document.getElementById("markAllOpen").addEventListener("click", openAllWorkouts);
-
+      bindMainEvents();
+      updateBadges();
       renderWorkouts();
+
+      if (supabase) {
+        await checkSession();
+
+        supabase.auth.onAuthStateChange(async (_event, session) => {
+          currentUser = session?.user || null;
+          updateBadges();
+
+          if (currentUser) {
+            await loadFromSupabase();
+          } else {
+            state = loadLocalState();
+          }
+
+          renderWorkouts();
+        });
+      }
     }
 
     init();
