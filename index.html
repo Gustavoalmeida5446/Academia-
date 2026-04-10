@@ -1,92 +1,697 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Treino Gustavo - Pratique</title>
-    <style>
-        body { font-family: sans-serif; background: #121212; color: #eee; margin: 0; padding: 10px; }
-        .container { max-width: 600px; margin: auto; }
-        header { text-align: center; padding: 15px 0; border-bottom: 2px solid #ff3e3e; margin-bottom: 15px; }
-        h1 { color: #ff3e3e; margin: 0; font-size: 22px; text-transform: uppercase; }
-        .treino-btn { background: #ff3e3e; color: white; cursor: pointer; padding: 16px; width: 100%; border: none; text-align: left; font-size: 18px; font-weight: bold; border-radius: 8px; margin-top: 12px; display: flex; justify-content: space-between; }
-        .panel-treino { display: none; margin-bottom: 20px; }
-        .ex-item { background: #1e1e1e; margin-top: 6px; border-radius: 6px; border-left: 5px solid #444; }
-        .ex-header { display: flex; align-items: center; padding: 12px; }
-        .ex-name { flex-grow: 1; font-size: 14px; font-weight: 500; cursor: pointer; }
-        .ex-done { border-left-color: #4caf50; background: #1a2e1a; }
-        .ex-done .ex-name { color: #81c784; text-decoration: line-through; }
-        .btn-check { background: #333; border: none; color: white; padding: 10px; border-radius: 5px; margin-left: 10px; cursor: pointer; }
-        .ex-content { display: none; padding: 15px; background: #252525; border-top: 1px solid #333; }
-        .video-wrap { position: relative; padding-bottom: 56.25%; height: 0; margin-bottom: 12px; background: #000; border-radius: 4px; overflow: hidden; }
-        .video-wrap iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-        input[type="number"] { background: #333; border: 1px solid #555; color: white; padding: 6px; width: 55px; border-radius: 4px; text-align: center; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Treino A/B/C</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --bg-2: #111827;
+      --card: #1f2937;
+      --card-2: #243244;
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --line: #334155;
+      --green: #22c55e;
+      --blue: #38bdf8;
+      --red: #ef4444;
+      --shadow: 0 10px 30px rgba(0,0,0,.25);
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(180deg, #0f172a 0%, #020617 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .container {
+      width: min(980px, calc(100% - 24px));
+      margin: 24px auto 40px;
+    }
+    .hero {
+      background: linear-gradient(180deg, rgba(56,189,248,.14), rgba(34,197,94,.08));
+      border: 1px solid rgba(148,163,184,.14);
+      border-radius: 24px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.75rem;
+    }
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    .panel {
+      background: rgba(31,41,55,.94);
+      border: 1px solid rgba(148,163,184,.14);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .panel-body {
+      padding: 16px;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .stat {
+      background: rgba(15,23,42,.55);
+      border: 1px solid rgba(148,163,184,.12);
+      border-radius: 14px;
+      padding: 14px;
+    }
+    .stat small {
+      display: block;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .stat strong {
+      font-size: 1.25rem;
+    }
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 12px;
+      align-items: end;
+    }
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+    label {
+      color: var(--muted);
+      font-size: .92rem;
+    }
+    input[type="number"], input[type="date"] {
+      width: 100%;
+      background: #0f172a;
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 1rem;
+      outline: none;
+    }
+    input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(56,189,248,.12);
+    }
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: .95rem;
+      cursor: pointer;
+      color: white;
+      background: #2563eb;
+      min-height: 46px;
+    }
+    button.secondary { background: #334155; }
+    button.danger { background: var(--red); }
+    details {
+      border-top: 1px solid rgba(148,163,184,.12);
+    }
+    details:first-child {
+      border-top: 0;
+    }
+    summary {
+      list-style: none;
+      cursor: pointer;
+    }
+    summary::-webkit-details-marker {
+      display: none;
+    }
+    .workout-summary, .exercise-summary {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 18px;
+    }
+    .workout-summary {
+      background: rgba(36,50,68,.92);
+    }
+    .exercise-summary {
+      background: rgba(15,23,42,.42);
+    }
+    .left {
+      display: grid;
+      gap: 4px;
+    }
+    .left small {
+      color: var(--muted);
+    }
+    .badge {
+      white-space: nowrap;
+      background: #86efac;
+      color: #052e16;
+      font-weight: bold;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: .82rem;
+    }
+    .exercise-body {
+      padding: 0 18px 18px;
+      display: grid;
+      gap: 14px;
+    }
+    .exercise-grid {
+      display: grid;
+      grid-template-columns: 1fr 160px;
+      gap: 12px;
+      align-items: end;
+    }
+    .check {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      font-size: .98rem;
+    }
+    .check input {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--green);
+    }
+    .links {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .link-btn {
+      display: inline-block;
+      text-decoration: none;
+      background: #0ea5e9;
+      color: white;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: .94rem;
+    }
+    .small {
+      font-size: .9rem;
+      color: var(--muted);
+    }
+    .done {
+      color: #86efac;
+      font-weight: bold;
+    }
+    .footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: .9rem;
+      margin-top: 18px;
+    }
+    @media (max-width: 760px) {
+      .stats {
+        grid-template-columns: 1fr 1fr;
+      }
+      .controls {
+        grid-template-columns: 1fr;
+      }
+      .exercise-grid {
+        grid-template-columns: 1fr;
+      }
+      .workout-summary, .exercise-summary {
+        align-items: start;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <header><h1>ACADEMIA - PRATIQUE</h1></header>
-        <div id="app"></div>
-    </div>
+  <div class="container">
+    <section class="hero">
+      <h1>Treino A / B / C</h1>
+      <p class="subtitle">Arquivo único com HTML, CSS e JS embutidos. Salva no navegador os pesos, os checks dos exercícios e seu peso corporal.</p>
+    </section>
 
-    <script>
-        const dados = {
-            'Treino A': [
-                { n: "ENCOLHIMENTO DE OMBROS - INT", v: "ZygClRlKm9M" },
-                { n: "PEITORAL VOADOR - INT", v: "jLl6YEWBD0I" },
-                { n: "SUPINO RETO NA BARRA - INT", v: "A02r9Z1N9iY" },
-                { n: "TRICEPS CORDA NO CROSS OVER - INT", v: "6YmZ009N5_M" },
-                { n: "TRICEPS FRANCES UNILATERAL COM HALTER - INT", v: "49zKsc_FqF0" },
-                { n: "ABDOMINAL CANIVETE NO SOLO - INT", v: "ouOMf0AMWEA" },
-                { n: "DESENVOLVIMENTO COM HALTERES", v: "3ZwwrTtnGJo" },
-                { n: "TRICEPS PULLEY", v: "ZjjzY2IObIU" }
-            ],
-            'Treino B': [
-                { n: "ABDOMINAL OBLIQUO DE LADO - INI", v: "-WjHb4OEpLM" },
-                { n: "AGACHAMENTO NA BARRA GUIADA - INT", v: "8pjN_4fkxgU" },
-                { n: "BANCO ABDUTOR - INI", v: "uiaPgrCUI58" },
-                { n: "BANCO EXTENSOR BILATERAL - INI", v: "UaHI5Pqc__o" },
-                { n: "BANCO FLEXOR BILATERAL - INI", v: "e0_xHkXw350" },
-                { n: "LEG PRESS 45 - AVA", v: "waAxlYvtCcI" },
-                { n: "PANTURRILHA APARELHO VERTICAL - INT", v: "smIfc3JFDDM" },
-                { n: "BANCO ADUTOR - INI", v: "WT5qhJZkeYI" }
-            ],
-            'Treino C': [
-                { n: "ABDOMINAL INFRA NA BARRA PARALELA - INT", v: "OcjLM6Weh-0" },
-                { n: "ABDOMINAL SUPRA NO APARELHO - INT", v: "jqnwfqpvo9U" },
-                { n: "PULLDOWN MAQUINA PRONADO - INT", v: "ATCAVE0I5K4" },
-                { n: "PULLEY FRENTE PRONADA ABERTA - INT", v: "hXitE7MOLgo" },
-                { n: "REMADA BAIXA NEUTRA FECHADA - INI", v: "sOA-70A6wLY" },
-                { n: "ROSCA SCOTT APARELHO - INT", v: "faBk2akE0mQ" },
-                { n: "ROSCA ALTERNADA COM HALTERES - INI", v: "ZvHOiAVh6Bk" },
-                { n: "DESENVOLVIMENTO NO APARELHO - INI", v: "mkpWMl3SOeQ" },
-                { n: "ROSCA MARTELO", v: "CTTsTVZM3Uk" }
-            ]
-        };
+    <section class="panel">
+      <div class="panel-body">
+        <div class="controls">
+          <div class="field">
+            <label for="bodyWeight">Peso corporal (kg)</label>
+            <input id="bodyWeight" type="number" step="0.1" placeholder="Ex: 67.0" />
+          </div>
+          <div class="field">
+            <label for="recordDate">Data</label>
+            <input id="recordDate" type="date" />
+          </div>
+          <div class="links">
+            <button id="saveBodyWeight">Salvar peso</button>
+            <button class="secondary" id="markAllOpen">Abrir todos</button>
+            <button class="danger" id="resetData">Limpar dados</button>
+          </div>
+        </div>
+      </div>
+    </section>
 
-        const app = document.getElementById('app');
-        Object.keys(dados).forEach(tNome => {
-            let html = `<button class="treino-btn" onclick="const p = this.nextElementSibling; p.style.display = p.style.display === 'block' ? 'none' : 'block'">${tNome} <span>▾</span></button><div class="panel-treino">`;
-            dados[tNome].forEach((ex, i) => {
-                const id = `${tNome}-${i}`.replace(/\s+/g, '').replace(/[()\/]/g, '');
-                const p = localStorage.getItem(`p-${id}`) || "";
-                html += `
-                <div class="ex-item" id="it-${id}">
-                    <div class="ex-header">
-                        <span class="ex-name" onclick="const c = document.getElementById('co-${id}'); c.style.display = c.style.display === 'block' ? 'none' : 'block'">${ex.n}</span>
-                        <input type="number" value="${p}" placeholder="kg" onchange="localStorage.setItem('p-${id}', this.value)">
-                        <button class="btn-check" onclick="document.getElementById('it-${id}').classList.toggle('ex-done')">✅</button>
-                    </div>
-                    <div class="ex-content" id="co-${id}">
-                        <div class="video-wrap">
-                            <iframe src="https://www.youtube.com/embed/${ex.v}" allowfullscreen></iframe>
-                        </div>
-                    </div>
-                </div>`;
-            });
-            html += `</div>`;
-            app.innerHTML += html;
+    <section class="stats">
+      <div class="stat panel">
+        <div class="panel-body">
+          <small>Exercícios concluídos</small>
+          <strong id="doneCount">0</strong>
+        </div>
+      </div>
+      <div class="stat panel">
+        <div class="panel-body">
+          <small>Total de exercícios</small>
+          <strong id="totalCount">0</strong>
+        </div>
+      </div>
+      <div class="stat panel">
+        <div class="panel-body">
+          <small>Último peso corporal</small>
+          <strong id="lastBodyWeight">-</strong>
+        </div>
+      </div>
+      <div class="stat panel">
+        <div class="panel-body">
+          <small>Última atualização</small>
+          <strong id="lastUpdate">-</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="workoutsContainer"></section>
+
+    <p class="footer">Os links de vídeo abrem uma busca do YouTube para o exercício, porque isso costuma funcionar melhor quando há variação no nome da máquina da academia.</p>
+  </div>
+
+  <script>
+    const workouts = {
+  "Treino A": [
+    {
+      "name": "Supino reto barra",
+      "sets": "4",
+      "reps": "6–10",
+      "videoQuery": "supino reto barra execução"
+    },
+    {
+      "name": "Peitoral voador",
+      "sets": "3",
+      "reps": "10–12",
+      "videoQuery": "peitoral voador execução"
+    },
+    {
+      "name": "Desenvolvimento com halteres",
+      "sets": "3",
+      "reps": "8–10",
+      "videoQuery": "desenvolvimento com halteres execução"
+    },
+    {
+      "name": "Encolhimento de ombros",
+      "sets": "3",
+      "reps": "10–12",
+      "videoQuery": "encolhimento de ombros execução"
+    },
+    {
+      "name": "Tríceps corda no cross over",
+      "sets": "3",
+      "reps": "10–12",
+      "videoQuery": "triceps corda no crossover execução"
+    },
+    {
+      "name": "Tríceps francês unilateral com halter",
+      "sets": "3",
+      "reps": "10–12",
+      "videoQuery": "triceps francês unilateral halter execução"
+    },
+    {
+      "name": "Tríceps pulley",
+      "sets": "2",
+      "reps": "12–15",
+      "videoQuery": "triceps pulley execução"
+    },
+    {
+      "name": "Lombar no aparelho",
+      "sets": "3",
+      "reps": "12–15",
+      "videoQuery": "lombar no aparelho execução"
+    }
+  ],
+  "Treino B": [
+    {
+      "name": "Agachamento na barra guiada",
+      "sets": "4",
+      "reps": "6–10",
+      "videoQuery": "agachamento na barra guiada smith execução"
+    },
+    {
+      "name": "Leg press 45",
+      "sets": "3",
+      "reps": "10–12",
+      "videoQuery": "leg press 45 execução"
+    },
+    {
+      "name": "Banco extensor bilateral",
+      "sets": "3",
+      "reps": "12–15",
+      "videoQuery": "cadeira extensora execução"
+    },
+    {
+      "name": "Banco flexor bilateral",
+      "sets": "3",
+      "reps": "12–15",
+      "videoQuery": "mesa flexora execução"
+    },
+    {
+      "name": "Banco abdutor",
+      "sets": "2",
+      "reps": "12–15",
+      "videoQuery": "abdutor máquina execução"
+    },
+    {
+      "name": "Banco adutor",
+      "sets": "2",
+      "reps": "12–15",
+      "videoQuery": "adutor máquina execução"
+    },
+    {
+      "name": "Panturrilha aparelho vertical",
+      "sets": "4",
+      "reps": "12–15",
+      "videoQuery": "panturrilha aparelho vertical execução"
+    },
+    {
+      "name": "Abdominal máquina (crunch sentado)",
+      "sets": "3",
+      "reps": "12–15",
+      "videoQuery": "abdominal máquina crunch sentado execução"
+    }
+  ],
+  "Treino C": [
+    {
+      "name": "Pulldown máquina pronado",
+      "sets": "4",
+      "reps": "8–10",
+      "videoQuery": "pulldown máquina pronado execução"
+    },
+    {
+      "name": "Pulley frente pronada aberta",
+      "sets": "3",
+      "reps": "10–12",
+      "videoQuery": "pulley frente pronada aberta execução"
+    },
+    {
+      "name": "Remada baixa neutra fechada",
+      "sets": "3",
+      "reps": "10–12",
+      "videoQuery": "remada baixa neutra fechada execução"
+    },
+    {
+      "name": "Desenvolvimento no aparelho",
+      "sets": "3",
+      "reps": "10–12",
+      "videoQuery": "desenvolvimento no aparelho execução"
+    },
+    {
+      "name": "Rosca Scott aparelho",
+      "sets": "3",
+      "reps": "10–12",
+      "videoQuery": "rosca scott aparelho execução"
+    },
+    {
+      "name": "Rosca alternada com halteres",
+      "sets": "3",
+      "reps": "10–12",
+      "videoQuery": "rosca alternada com halteres execução"
+    },
+    {
+      "name": "Rosca martelo",
+      "sets": "2",
+      "reps": "12–15",
+      "videoQuery": "rosca martelo execução"
+    },
+    {
+      "name": "Abdominal infra na barra paralela",
+      "sets": "3",
+      "reps": "10–15",
+      "videoQuery": "abdominal infra barra paralela execução"
+    },
+    {
+      "name": "Abdominal supra no aparelho",
+      "sets": "3",
+      "reps": "10–15",
+      "videoQuery": "abdominal supra aparelho execução"
+    }
+  ]
+};
+    const STORAGE_KEY = "gustavo_treino_abc_v1";
+
+    function defaultState() {
+      const exerciseState = {};
+      Object.entries(workouts).forEach(([workoutName, exercises]) => {
+        exercises.forEach((exercise) => {
+          const key = makeKey(workoutName, exercise.name);
+          exerciseState[key] = {
+            checked: false,
+            weight: "",
+            updatedAt: ""
+          };
         });
-    </script>
+      });
+      return {
+        bodyWeight: "",
+        bodyWeightDate: "",
+        lastUpdate: "",
+        exercises: exerciseState
+      };
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return defaultState();
+        const parsed = JSON.parse(raw);
+        return mergeState(parsed);
+      } catch (error) {
+        return defaultState();
+      }
+    }
+
+    function mergeState(saved) {
+      const base = defaultState();
+      const merged = {
+        ...base,
+        ...saved,
+        exercises: {
+          ...base.exercises,
+          ...(saved.exercises || {})
+        }
+      };
+      return merged;
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      updateStats();
+    }
+
+    function makeKey(workoutName, exerciseName) {
+      return `${workoutName}__${exerciseName}`;
+    }
+
+    function formatDate(dateString) {
+      if (!dateString) return "-";
+      const date = new Date(dateString + (dateString.length <= 10 ? "T00:00:00" : ""));
+      if (Number.isNaN(date.getTime())) return dateString;
+      return date.toLocaleDateString("pt-BR");
+    }
+
+    function formatDateTime(dateString) {
+      if (!dateString) return "-";
+      const date = new Date(dateString);
+      if (Number.isNaN(date.getTime())) return dateString;
+      return date.toLocaleString("pt-BR");
+    }
+
+    function youtubeSearchLink(query) {
+      return `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
+    }
+
+    function renderWorkouts() {
+      const container = document.getElementById("workoutsContainer");
+      container.innerHTML = "";
+
+      Object.entries(workouts).forEach(([workoutName, exercises], workoutIndex) => {
+        const workoutDetails = document.createElement("details");
+        if (workoutIndex === 0) workoutDetails.open = true;
+
+        const workoutDone = exercises.filter((exercise) => {
+          const item = state.exercises[makeKey(workoutName, exercise.name)];
+          return item && item.checked;
+        }).length;
+
+        const workoutSummary = document.createElement("summary");
+        workoutSummary.className = "workout-summary";
+        workoutSummary.innerHTML = `
+          <div class="left">
+            <strong>${workoutName}</strong>
+            <small>${exercises.length} exercícios</small>
+          </div>
+          <span class="badge">${workoutDone} / ${exercises.length} concluídos</span>
+        `;
+        workoutDetails.appendChild(workoutSummary);
+
+        exercises.forEach((exercise, exerciseIndex) => {
+          const exerciseDetails = document.createElement("details");
+          if (exerciseIndex === 0) exerciseDetails.open = false;
+
+          const key = makeKey(workoutName, exercise.name);
+          const exerciseData = state.exercises[key];
+
+          const exerciseSummary = document.createElement("summary");
+          exerciseSummary.className = "exercise-summary";
+          exerciseSummary.innerHTML = `
+            <div class="left">
+              <strong>${exercise.name}</strong>
+              <small>${exercise.sets} séries • ${exercise.reps} reps</small>
+            </div>
+            <span class="${exerciseData.checked ? "done" : ""}">${exerciseData.checked ? "Feito" : "Pendente"}</span>
+          `;
+          exerciseDetails.appendChild(exerciseSummary);
+
+          const exerciseBody = document.createElement("div");
+          exerciseBody.className = "exercise-body";
+
+          const grid = document.createElement("div");
+          grid.className = "exercise-grid";
+          grid.innerHTML = `
+            <label class="check">
+              <input type="checkbox" data-type="checked" data-key="${key}" ${exerciseData.checked ? "checked" : ""} />
+              <span>Marcar exercício como feito</span>
+            </label>
+            <div class="field">
+              <label for="weight-${sanitizeId(key)}">Peso usado (kg)</label>
+              <input
+                id="weight-${sanitizeId(key)}"
+                type="number"
+                step="0.5"
+                min="0"
+                data-type="weight"
+                data-key="${key}"
+                value="${exerciseData.weight}"
+                placeholder="Ex: 20"
+              />
+            </div>
+          `;
+
+          const info = document.createElement("div");
+          info.className = "small";
+          info.textContent = exerciseData.updatedAt
+            ? `Última alteração: ${formatDateTime(exerciseData.updatedAt)}`
+            : "Sem registro ainda";
+
+          const links = document.createElement("div");
+          links.className = "links";
+          links.innerHTML = `
+            <a class="link-btn" href="${youtubeSearchLink(exercise.videoQuery)}" target="_blank" rel="noopener noreferrer">Ver execução</a>
+          `;
+
+          exerciseBody.appendChild(grid);
+          exerciseBody.appendChild(info);
+          exerciseBody.appendChild(links);
+          exerciseDetails.appendChild(exerciseBody);
+          workoutDetails.appendChild(exerciseDetails);
+        });
+
+        container.appendChild(workoutDetails);
+      });
+
+      bindInputs();
+      updateStats();
+    }
+
+    function sanitizeId(value) {
+      return value
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-zA-Z0-9_-]/g, "-");
+    }
+
+    function bindInputs() {
+      document.querySelectorAll('[data-type="checked"]').forEach((input) => {
+        input.addEventListener("change", (event) => {
+          const key = event.target.dataset.key;
+          state.exercises[key].checked = event.target.checked;
+          state.exercises[key].updatedAt = new Date().toISOString();
+          state.lastUpdate = new Date().toISOString();
+          saveState();
+          renderWorkouts();
+        });
+      });
+
+      document.querySelectorAll('[data-type="weight"]').forEach((input) => {
+        input.addEventListener("input", (event) => {
+          const key = event.target.dataset.key;
+          state.exercises[key].weight = event.target.value;
+          state.exercises[key].updatedAt = new Date().toISOString();
+          state.lastUpdate = new Date().toISOString();
+          saveState();
+        });
+      });
+    }
+
+    function updateStats() {
+      const allExercises = Object.keys(state.exercises);
+      const done = allExercises.filter((key) => state.exercises[key].checked).length;
+
+      document.getElementById("doneCount").textContent = String(done);
+      document.getElementById("totalCount").textContent = String(allExercises.length);
+      document.getElementById("lastBodyWeight").textContent = state.bodyWeight ? `${state.bodyWeight} kg` : "-";
+      document.getElementById("lastUpdate").textContent = formatDateTime(state.lastUpdate);
+    }
+
+    function saveBodyWeight() {
+      const bodyWeightInput = document.getElementById("bodyWeight");
+      const recordDateInput = document.getElementById("recordDate");
+
+      state.bodyWeight = bodyWeightInput.value.trim();
+      state.bodyWeightDate = recordDateInput.value;
+      state.lastUpdate = new Date().toISOString();
+      saveState();
+      updateStats();
+      alert("Peso corporal salvo.");
+    }
+
+    function resetAllData() {
+      const confirmed = window.confirm("Tem certeza que deseja apagar todos os dados salvos?");
+      if (!confirmed) return;
+      state = defaultState();
+      saveState();
+      document.getElementById("bodyWeight").value = "";
+      document.getElementById("recordDate").value = "";
+      renderWorkouts();
+    }
+
+    function openAllWorkouts() {
+      document.querySelectorAll("#workoutsContainer > details").forEach((details) => {
+        details.open = true;
+      });
+    }
+
+    let state = loadState();
+
+    function init() {
+      document.getElementById("bodyWeight").value = state.bodyWeight || "";
+      document.getElementById("recordDate").value = state.bodyWeightDate || new Date().toISOString().slice(0, 10);
+
+      document.getElementById("saveBodyWeight").addEventListener("click", saveBodyWeight);
+      document.getElementById("resetData").addEventListener("click", resetAllData);
+      document.getElementById("markAllOpen").addEventListener("click", openAllWorkouts);
+
+      renderWorkouts();
+    }
+
+    init();
+  </script>
 </body>
 </html>
