@@ -651,8 +651,44 @@
     let onlyPendingMode = false;
     let state = null;
 
+    function todayString() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
     function makeKey(workoutName, exerciseName) {
       return `${workoutName}__${exerciseName}`;
+    }
+
+    function normalizeHistoryEntries(history) {
+      const map = new Map();
+
+      (Array.isArray(history) ? history : []).forEach((item) => {
+        if (!item?.workout || !item?.recordDate) return;
+
+        const key = `${item.workout}__${item.recordDate}`;
+        const normalized = {
+          workout: item.workout,
+          recordDate: item.recordDate,
+          bodyWeight: item.bodyWeight ?? "",
+          completedAt: item.completedAt || "",
+          exercises: Array.isArray(item.exercises) ? item.exercises : []
+        };
+
+        const existing = map.get(key);
+        if (!existing) {
+          map.set(key, normalized);
+          return;
+        }
+
+        const existingTime = existing.completedAt ? new Date(existing.completedAt).getTime() : 0;
+        const nextTime = normalized.completedAt ? new Date(normalized.completedAt).getTime() : 0;
+
+        if (nextTime >= existingTime) {
+          map.set(key, normalized);
+        }
+      });
+
+      return Array.from(map.values());
     }
 
     function defaultState() {
@@ -672,6 +708,7 @@
       });
 
       return {
+        recordDate: todayString(),
         bodyWeight: "",
         bodyWeightDate: "",
         lastUpdate: "",
@@ -685,11 +722,12 @@
       return {
         ...base,
         ...saved,
+        recordDate: saved.recordDate || saved.bodyWeightDate || base.recordDate,
         exercises: {
           ...base.exercises,
           ...(saved.exercises || {})
         },
-        history: Array.isArray(saved.history) ? saved.history : []
+        history: normalizeHistoryEntries(saved.history)
       };
     }
 
@@ -725,6 +763,26 @@
 
     function youtubeSearchLink(query) {
       return `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
+    }
+
+    function getActiveRecordDate() {
+      return document.getElementById("recordDate")?.value || state?.recordDate || todayString();
+    }
+
+    function rememberActiveRecordDate() {
+      if (!state) return todayString();
+      state.recordDate = getActiveRecordDate();
+      return state.recordDate;
+    }
+
+    function shouldSyncExercise(item, includeEmpty = false) {
+      if (!item) return false;
+      return includeEmpty || !!item.checked || item.usedWeight !== "" || !!item.updatedAt;
+    }
+
+    function upsertHistoryEntry(entry) {
+      const nextHistory = normalizeHistoryEntries([...(state.history || []), entry]);
+      state.history = nextHistory;
     }
 
     function sanitizeId(value) {
@@ -1033,11 +1091,17 @@
       }
     }
 
-    async function saveCurrentExerciseStateToSupabase(key) {
+    async function saveCurrentExerciseStateToSupabase(key, includeEmpty = false) {
       if (!supabase || !currentUser) return;
 
       const item = state.exercises[key];
       if (!item) return;
+
+      const recordDate = rememberActiveRecordDate();
+
+      if (!shouldSyncExercise(item, includeEmpty)) {
+        return;
+      }
 
       const payload = {
         user_id: currentUser.id,
@@ -1046,44 +1110,27 @@
         used_weight: item.usedWeight === "" ? null : Number(item.usedWeight),
         done: !!item.checked,
         body_weight: state.bodyWeight === "" ? null : Number(state.bodyWeight),
-        record_date: state.bodyWeightDate || new Date().toISOString().slice(0, 10),
+        record_date: recordDate,
         updated_at: new Date().toISOString()
       };
 
-      const { data: existing, error: selectError } = await supabase
+      const { error } = await supabase
         .from("workout_logs")
-        .select("id")
-        .eq("user_id", currentUser.id)
-        .eq("workout", item.workout)
-        .eq("exercise", item.exercise)
-        .eq("record_date", payload.record_date)
-        .limit(1);
+        .upsert(payload, {
+          onConflict: "user_id,workout,exercise,record_date"
+        });
 
-      if (selectError) {
-        console.error(selectError);
-        return;
-      }
-
-      if (existing && existing.length > 0) {
-        const { error } = await supabase
-          .from("workout_logs")
-          .update(payload)
-          .eq("id", existing[0].id);
-
-        if (error) console.error(error);
-      } else {
-        const { error } = await supabase
-          .from("workout_logs")
-          .insert(payload);
-
-        if (error) console.error(error);
-      }
+      if (error) console.error(error);
     }
 
-    async function syncAllCurrentStateToCloud() {
+    async function syncAllCurrentStateToCloud(includeEmpty = false) {
       if (!supabase || !currentUser) return;
+
       for (const key of Object.keys(state.exercises)) {
-        await saveCurrentExerciseStateToSupabase(key);
+        if (!shouldSyncExercise(state.exercises[key], includeEmpty)) {
+          continue;
+        }
+        await saveCurrentExerciseStateToSupabase(key, includeEmpty);
       }
     }
 
@@ -1130,23 +1177,31 @@
 
       const nextState = defaultState();
       const historyMap = new Map();
+      const preferredRecordDate = state?.recordDate || todayString();
+      const availableDates = new Set(
+        data
+          .map((row) => row.record_date)
+          .filter(Boolean)
+      );
+      const latestRecordDate = data.find((row) => row.record_date)?.record_date || preferredRecordDate;
+      const activeRecordDate = availableDates.has(preferredRecordDate) ? preferredRecordDate : latestRecordDate;
+
+      nextState.recordDate = activeRecordDate;
 
       for (const row of data) {
         const key = makeKey(row.workout, row.exercise);
 
-        if (nextState.exercises[key]) {
-          const currentDate = nextState.bodyWeightDate || "";
-          const rowDate = row.record_date || "";
-
-          if (!currentDate || rowDate >= currentDate) {
-            nextState.exercises[key].checked = !!row.done;
-            nextState.exercises[key].usedWeight = row.used_weight ?? "";
-            nextState.exercises[key].updatedAt = row.updated_at || "";
-          }
+        if (nextState.exercises[key] && row.record_date === activeRecordDate) {
+          nextState.exercises[key].checked = !!row.done;
+          nextState.exercises[key].usedWeight = row.used_weight ?? "";
+          nextState.exercises[key].updatedAt = row.updated_at || "";
         }
 
         if (row.body_weight !== null && row.body_weight !== undefined) {
-          if (!nextState.bodyWeightDate || (row.record_date && row.record_date >= nextState.bodyWeightDate)) {
+          if (
+            row.record_date === activeRecordDate ||
+            (!nextState.bodyWeightDate || (row.record_date && row.record_date >= nextState.bodyWeightDate))
+          ) {
             nextState.bodyWeight = row.body_weight;
             nextState.bodyWeightDate = row.record_date || nextState.bodyWeightDate;
           }
@@ -1176,17 +1231,18 @@
         });
       }
 
-      nextState.history = Array.from(historyMap.values());
+      nextState.history = normalizeHistoryEntries(Array.from(historyMap.values()));
       state = mergeState(nextState);
       saveLocalState();
 
       document.getElementById("bodyWeight").value = state.bodyWeight || "";
-      document.getElementById("recordDate").value = state.bodyWeightDate || new Date().toISOString().slice(0, 10);
+      document.getElementById("recordDate").value = state.recordDate || state.bodyWeightDate || todayString();
     }
 
     async function saveBodyWeight() {
+      rememberActiveRecordDate();
       state.bodyWeight = document.getElementById("bodyWeight").value.trim();
-      state.bodyWeightDate = document.getElementById("recordDate").value;
+      state.bodyWeightDate = state.recordDate;
       state.lastUpdate = new Date().toISOString();
       saveLocalState();
 
@@ -1200,7 +1256,7 @@
     }
 
     async function completeWorkoutForCurrentDate() {
-      const date = document.getElementById("recordDate").value;
+      const date = rememberActiveRecordDate();
       if (!date) {
         showMessage("Escolha a data do treino.");
         return;
@@ -1227,7 +1283,7 @@
             checked: item.checked
           }));
 
-        state.history.push({
+        upsertHistoryEntry({
           workout: workoutName,
           recordDate: date,
           bodyWeight: state.bodyWeight,
@@ -1240,7 +1296,11 @@
       saveLocalState();
 
       if (currentUser) {
-        for (const entry of state.history.slice(-workoutsDone.size)) {
+        const recentEntries = state.history.filter((entry) => {
+          return entry.recordDate === date && workoutsDone.has(entry.workout);
+        });
+
+        for (const entry of recentEntries) {
           await saveHistoryEntryToSupabase(entry);
         }
       }
@@ -1263,7 +1323,7 @@
       renderWorkouts();
 
       if (currentUser) {
-        await syncAllCurrentStateToCloud();
+        await syncAllCurrentStateToCloud(true);
       }
     }
 
@@ -1274,7 +1334,7 @@
       state = defaultState();
       saveLocalState();
       document.getElementById("bodyWeight").value = "";
-      document.getElementById("recordDate").value = new Date().toISOString().slice(0, 10);
+      document.getElementById("recordDate").value = todayString();
       renderWorkouts();
       renderHistory();
 
@@ -1338,7 +1398,7 @@
         saveLocalState();
 
         document.getElementById("bodyWeight").value = state.bodyWeight || "";
-        document.getElementById("recordDate").value = state.bodyWeightDate || new Date().toISOString().slice(0, 10);
+        document.getElementById("recordDate").value = state.recordDate || state.bodyWeightDate || todayString();
 
         renderWorkouts();
         renderHistory();
@@ -1368,7 +1428,7 @@
           showMessage("Você precisa estar logado para sincronizar.");
           return;
         }
-        await syncAllCurrentStateToCloud();
+        await syncAllCurrentStateToCloud(true);
         for (const entry of state.history) {
           await saveHistoryEntryToSupabase(entry);
         }
@@ -1379,6 +1439,10 @@
       });
 
       document.getElementById("saveBodyWeightBtn").addEventListener("click", saveBodyWeight);
+      document.getElementById("recordDate").addEventListener("change", (event) => {
+        state.recordDate = event.target.value || todayString();
+        saveLocalState();
+      });
       document.getElementById("openAllBtn").addEventListener("click", openAllWorkouts);
       document.getElementById("closeAllBtn").addEventListener("click", closeAllWorkouts);
       document.getElementById("showPendingBtn").addEventListener("click", showOnlyPending);
@@ -1397,7 +1461,7 @@
       state = loadLocalState();
 
       document.getElementById("bodyWeight").value = state.bodyWeight || "";
-      document.getElementById("recordDate").value = state.bodyWeightDate || new Date().toISOString().slice(0, 10);
+      document.getElementById("recordDate").value = state.recordDate || state.bodyWeightDate || todayString();
 
       bindMainEvents();
       updateBadges();
