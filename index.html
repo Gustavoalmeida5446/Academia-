@@ -646,7 +646,7 @@
   ]
 };
 
-    let supabase = null;
+    let supabaseClient = null;
     let currentUser = null;
     let onlyPendingMode = false;
     let state = null;
@@ -1008,7 +1008,7 @@
     }
 
     async function signUp() {
-      if (!supabase) {
+      if (!supabaseClient) {
         showMessage("Preencha a URL e a anon key do Supabase no código.");
         return;
       }
@@ -1021,7 +1021,7 @@
         return;
       }
 
-      const { error } = await supabase.auth.signUp({ email, password });
+      const { error } = await supabaseClient.auth.signUp({ email, password });
       if (error) {
         showMessage("Erro ao cadastrar: " + error.message);
         return;
@@ -1031,7 +1031,7 @@
     }
 
     async function signIn() {
-      if (!supabase) {
+      if (!supabaseClient) {
         showMessage("Preencha a URL e a anon key do Supabase no código.");
         return;
       }
@@ -1044,7 +1044,7 @@
         return;
       }
 
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
       if (error) {
         showMessage("Erro ao entrar: " + error.message);
         return;
@@ -1059,9 +1059,9 @@
     }
 
     async function signOut() {
-      if (!supabase) return;
+      if (!supabaseClient) return;
 
-      const { error } = await supabase.auth.signOut();
+      const { error } = await supabaseClient.auth.signOut();
       if (error) {
         showMessage("Erro ao sair: " + error.message);
         return;
@@ -1076,9 +1076,9 @@
     }
 
     async function checkSession() {
-      if (!supabase) return;
+      if (!supabaseClient) return;
 
-      const { data, error } = await supabase.auth.getSession();
+      const { data, error } = await supabaseClient.auth.getSession();
       if (error) return;
 
       currentUser = data?.session?.user || null;
@@ -1092,7 +1092,7 @@
     }
 
     async function saveCurrentExerciseStateToSupabase(key, includeEmpty = false) {
-      if (!supabase || !currentUser) return;
+      if (!supabaseClient || !currentUser) return;
 
       const item = state.exercises[key];
       if (!item) return;
@@ -1114,7 +1114,7 @@
         updated_at: new Date().toISOString()
       };
 
-      const { error } = await supabase
+      const { error } = await supabaseClient
         .from("workout_logs")
         .upsert(payload, {
           onConflict: "user_id,workout,exercise,record_date"
@@ -1124,7 +1124,7 @@
     }
 
     async function syncAllCurrentStateToCloud(includeEmpty = false) {
-      if (!supabase || !currentUser) return;
+      if (!supabaseClient || !currentUser) return;
 
       for (const key of Object.keys(state.exercises)) {
         if (!shouldSyncExercise(state.exercises[key], includeEmpty)) {
@@ -1135,7 +1135,7 @@
     }
 
     async function saveHistoryEntryToSupabase(entry) {
-      if (!supabase || !currentUser) return;
+      if (!supabaseClient || !currentUser) return;
 
       const rows = (entry.exercises || []).map((item) => {
         return {
@@ -1152,7 +1152,7 @@
 
       if (rows.length === 0) return;
 
-      const { error } = await supabase.from("workout_logs").upsert(rows, {
+      const { error } = await supabaseClient.from("workout_logs").upsert(rows, {
         onConflict: "user_id,workout,exercise,record_date"
       });
 
@@ -1160,9 +1160,9 @@
     }
 
     async function loadFromSupabase() {
-      if (!supabase || !currentUser) return;
+      if (!supabaseClient || !currentUser) return;
 
-      const { data, error } = await supabase
+      const { data, error } = await supabaseClient
         .from("workout_logs")
         .select("*")
         .eq("user_id", currentUser.id)
@@ -1338,8 +1338,8 @@
       renderWorkouts();
       renderHistory();
 
-      if (currentUser && supabase) {
-        const { error } = await supabase
+      if (currentUser && supabaseClient) {
+        const { error } = await supabaseClient
           .from("workout_logs")
           .delete()
           .eq("user_id", currentUser.id);
@@ -1457,7 +1457,7 @@
     }
 
     async function init() {
-      supabase = createSupabaseClient();
+      supabaseClient = createSupabaseClient();
       state = loadLocalState();
 
       document.getElementById("bodyWeight").value = state.bodyWeight || "";
@@ -1468,10 +1468,10 @@
       renderWorkouts();
       renderHistory();
 
-      if (supabase) {
+      if (supabaseClient) {
         await checkSession();
 
-        supabase.auth.onAuthStateChange(async (_event, session) => {
+        supabaseClient.auth.onAuthStateChange(async (_event, session) => {
           currentUser = session?.user || null;
           updateBadges();
 
