@@ -20,10 +20,9 @@
   body {
     @apply min-h-screen bg-slate-950 font-body text-slate-100;
     background-image:
-      radial-gradient(circle at 0% 0%, rgba(249, 115, 22, 0.28), transparent 26%),
-      radial-gradient(circle at 100% 0%, rgba(250, 204, 21, 0.12), transparent 22%),
-      radial-gradient(circle at 100% 20%, rgba(14, 165, 233, 0.16), transparent 24%),
-      linear-gradient(180deg, #020617 0%, #08111f 38%, #020617 100%);
+      radial-gradient(circle at 0% 0%, rgba(148, 163, 184, 0.08), transparent 24%),
+      radial-gradient(circle at 100% 0%, rgba(148, 163, 184, 0.06), transparent 20%),
+      linear-gradient(180deg, #020617 0%, #0b1220 45%, #020617 100%);
   }
 
   button,
@@ -41,17 +40,17 @@
   button:focus-visible,
   input:focus-visible,
   select:focus-visible {
-    @apply rounded-2xl ring-2 ring-orange-400/70 ring-offset-2 ring-offset-slate-950;
+    @apply rounded-2xl ring-2 ring-slate-300/70 ring-offset-2 ring-offset-slate-950;
   }
 }
 
 @layer components {
   .panel {
-    @apply rounded-3xl border border-white/10 bg-slate-900/80 shadow-glow backdrop-blur;
+    @apply rounded-3xl border border-white/10 bg-slate-900/75 shadow-glow backdrop-blur;
   }
 
   .input-base {
-    @apply w-full rounded-2xl border border-white/10 bg-slate-950/85 px-4 py-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-orange-400/70 focus:ring-2 focus:ring-orange-400/20;
+    @apply w-full rounded-2xl border border-white/10 bg-slate-950/85 px-4 py-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-slate-300/60 focus:ring-2 focus:ring-slate-300/15;
   }
 
   .btn-base {
@@ -59,7 +58,7 @@
   }
 
   .btn-primary {
-    @apply btn-base bg-gradient-to-r from-orange-400 to-amber-300 text-slate-950 hover:brightness-105 focus:ring-orange-400;
+    @apply btn-base bg-slate-200 text-slate-950 hover:bg-slate-100 focus:ring-slate-300;
   }
 
   .btn-secondary {
@@ -67,11 +66,11 @@
   }
 
   .btn-success {
-    @apply btn-base bg-gradient-to-r from-emerald-400 to-lime-300 text-slate-950 hover:brightness-105 focus:ring-emerald-400;
+    @apply btn-base bg-slate-700 text-slate-100 hover:bg-slate-600 focus:ring-slate-400;
   }
 
   .btn-danger {
-    @apply btn-base bg-rose-500 text-white hover:bg-rose-400 focus:ring-rose-400;
+    @apply btn-base bg-slate-800 text-slate-200 hover:bg-slate-700 focus:ring-slate-400;
   }
 
   .badge {

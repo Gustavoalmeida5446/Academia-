@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 
 const typeClasses = {
-  info: "border-sky-400/30 bg-sky-400/10 text-sky-100",
-  success: "border-emerald-400/30 bg-emerald-400/10 text-emerald-100",
-  error: "border-rose-400/30 bg-rose-400/10 text-rose-100"
+  info: "border-white/10 bg-slate-800/95 text-slate-100",
+  success: "border-white/10 bg-slate-800/95 text-slate-100",
+  error: "border-white/10 bg-slate-800/95 text-slate-100"
 };
 
 export function FeedbackMessage({ feedback, onClose }) {

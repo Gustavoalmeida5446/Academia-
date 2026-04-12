@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { StatusPill } from "../Feedback/StatusPill";
 import { EmptyWorkoutState } from "./EmptyWorkoutState";
 import { WorkoutAccordion } from "./WorkoutAccordion";
 
@@ -30,38 +29,12 @@ export function WorkoutSection({
   }
 
   return (
-    <section className="panel p-4 sm:p-5">
-      <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">
-            Exercicios
-          </p>
-          <h2 className="mt-2 font-display text-3xl text-white">Treinos organizados por bloco</h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
-            Cada treino aparece como um card principal, com progresso no topo e exercicios em uma leitura mais direta.
-          </p>
-        </div>
-
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <StatusPill>
-            {onlyPendingMode ? "Filtro: pendentes" : "Filtro: todos"}
-          </StatusPill>
-
-          <form
-            className="flex flex-col gap-3 rounded-[24px] border border-white/10 bg-slate-950/55 p-3 sm:flex-row sm:items-center"
-            onSubmit={handleCreateWorkout}
-          >
-            <input
-              className="input-base min-w-[220px] border-white/5 bg-white/[0.03]"
-              placeholder="Novo treino"
-              value={newWorkoutName}
-              onChange={(event) => setNewWorkoutName(event.target.value)}
-            />
-            <button className="btn-primary" type="submit">
-              Criar treino
-            </button>
-          </form>
-        </div>
+    <section className="grid gap-4">
+      <div className="flex flex-col gap-3">
+        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">
+          Treinos
+        </p>
+        <h2 className="font-display text-3xl text-white">Escolha um treino para abrir</h2>
       </div>
 
       {entries.length ? (
@@ -96,6 +69,25 @@ export function WorkoutSection({
       ) : (
         <EmptyWorkoutState />
       )}
+
+      <details className="panel">
+        <summary className="cursor-pointer list-none px-4 py-4 text-sm font-semibold text-slate-300 sm:px-5">
+          Editar e criar treinos
+        </summary>
+        <div className="border-t border-white/10 px-4 py-4 sm:px-5">
+          <form className="flex flex-col gap-3 sm:flex-row" onSubmit={handleCreateWorkout}>
+            <input
+              className="input-base min-w-[220px]"
+              placeholder="Novo treino"
+              value={newWorkoutName}
+              onChange={(event) => setNewWorkoutName(event.target.value)}
+            />
+            <button className="btn-primary" type="submit">
+              Criar treino
+            </button>
+          </form>
+        </div>
+      </details>
     </section>
   );
 }

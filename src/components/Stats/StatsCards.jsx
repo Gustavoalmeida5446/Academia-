@@ -6,22 +6,22 @@ export function StatsCards({ doneCount, totalCount, bodyWeight, lastUpdate }) {
     {
       label: "Exercicios concluidos",
       value: doneCount,
-      accent: "from-emerald-400/20 to-emerald-400/5"
+      accent: "from-white/[0.08] to-white/[0.02]"
     },
     {
       label: "Total de exercicios",
       value: totalCount,
-      accent: "from-sky-400/20 to-sky-400/5"
+      accent: "from-white/[0.08] to-white/[0.02]"
     },
     {
       label: "Ultimo peso corporal",
       value: formatWeight(bodyWeight),
-      accent: "from-orange-400/20 to-orange-400/5"
+      accent: "from-white/[0.08] to-white/[0.02]"
     },
     {
       label: "Ultima atualizacao",
       value: formatDateTime(lastUpdate),
-      accent: "from-fuchsia-400/20 to-fuchsia-400/5"
+      accent: "from-white/[0.08] to-white/[0.02]"
     }
   ];
 

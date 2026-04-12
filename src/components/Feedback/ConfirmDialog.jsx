@@ -1,10 +1,10 @@
 const toneClasses = {
   default: {
-    icon: "bg-sky-400/15 text-sky-200",
+    icon: "border border-white/10 bg-white/[0.05] text-slate-200",
     button: "btn-primary"
   },
   danger: {
-    icon: "bg-rose-400/15 text-rose-200",
+    icon: "border border-white/10 bg-white/[0.05] text-slate-200",
     button: "btn-danger"
   }
 };
