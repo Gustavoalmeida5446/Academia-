@@ -125,9 +125,11 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
   }
 
   async function handleUsedWeightChange(exerciseKey, usedWeight) {
+    setBusyAction(`exerciseWeight:${exerciseKey}`);
     updateExercise(exerciseKey, { usedWeight });
 
     if (supabase && currentUser) {
+      setSyncStatus("syncing");
       const nextState = {
         ...state,
         exercises: {
@@ -147,10 +149,16 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
           exerciseKey
         });
         setSyncStatus("cloud");
+        showFeedback("Peso do exercicio salvo.", "success");
       } catch {
         setSyncStatus("error");
+        showFeedback("Nao foi possivel salvar o peso do exercicio.", "error");
       }
+    } else {
+      showFeedback("Peso do exercicio salvo localmente.", "success");
     }
+
+    setBusyAction("");
   }
 
   async function saveBodyWeight(bodyWeight) {
@@ -162,10 +170,22 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
     setBusyAction("bodyWeight");
 
     const updatedAt = new Date().toISOString();
+    const nextWeightEntry = {
+      id: state.recordDate,
+      date: state.recordDate,
+      weight: Number(bodyWeight),
+      createdAt: updatedAt
+    };
+    const nextBodyWeightHistory = [
+      nextWeightEntry,
+      ...(state.bodyWeightHistory || []).filter((item) => item.date !== state.recordDate)
+    ].sort((a, b) => new Date(b.date) - new Date(a.date));
+
     const nextState = {
       ...state,
       bodyWeight,
       bodyWeightDate: state.recordDate,
+      bodyWeightHistory: nextBodyWeightHistory,
       lastUpdate: updatedAt
     };
 
@@ -187,6 +207,32 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
 
     showFeedback("Peso corporal salvo.", "success");
     setBusyAction("");
+  }
+
+  async function deleteBodyWeightEntry(entryId, requestConfirm) {
+    const confirmed = await requestConfirm({
+      title: "Excluir peso corporal",
+      message: "Esse registro antigo de peso sera removido do app.",
+      confirmLabel: "Excluir peso",
+      tone: "danger"
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
+    const nextBodyWeightHistory = (state.bodyWeightHistory || []).filter((item) => item.id !== entryId);
+    const latestEntry = nextBodyWeightHistory[0];
+
+    setState((current) => ({
+      ...current,
+      bodyWeightHistory: nextBodyWeightHistory,
+      bodyWeight: latestEntry?.weight ?? "",
+      bodyWeightDate: latestEntry?.date ?? "",
+      lastUpdate: new Date().toISOString()
+    }));
+
+    showFeedback("Registro de peso removido.", "success");
   }
 
   async function completeWorkoutForDate() {
@@ -239,13 +285,13 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
     setBusyAction("");
   }
 
-  async function syncNow() {
+  async function saveSync() {
     if (!supabase || !currentUser) {
-      showFeedback("Voce precisa estar logado para sincronizar.", "error");
+      showFeedback("Voce precisa estar logado para salvar na nuvem.", "error");
       return;
     }
 
-    setBusyAction("sync");
+    setBusyAction("saveSync");
     setSyncStatus("syncing");
 
     try {
@@ -259,7 +305,26 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
       for (const entry of state.history) {
         await syncHistoryEntryToSupabase({ supabase, currentUser, entry });
       }
+      setSyncStatus("cloud");
+      showFeedback("Dados salvos no Supabase.", "success");
+    } catch {
+      setSyncStatus("error");
+      showFeedback("Nao foi possivel salvar no Supabase agora.", "error");
+    } finally {
+      setBusyAction("");
+    }
+  }
 
+  async function refreshSync() {
+    if (!supabase || !currentUser) {
+      showFeedback("Voce precisa estar logado para atualizar da nuvem.", "error");
+      return;
+    }
+
+    setBusyAction("refreshSync");
+    setSyncStatus("syncing");
+
+    try {
       const freshState = await loadStateFromSupabase({
         supabase,
         currentUser,
@@ -268,10 +333,10 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
 
       setState(freshState);
       setSyncStatus("cloud");
-      showFeedback("Sincronizacao concluida.", "success");
+      showFeedback("Dados atualizados do Supabase.", "success");
     } catch {
       setSyncStatus("error");
-      showFeedback("Nao foi possivel sincronizar agora.", "error");
+      showFeedback("Nao foi possivel atualizar os dados do Supabase.", "error");
     } finally {
       setBusyAction("");
     }
@@ -350,6 +415,27 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
     }
 
     showFeedback("Todos os dados foram apagados.", "success");
+  }
+
+  async function clearHistory(requestConfirm) {
+    const confirmed = await requestConfirm({
+      title: "Limpar historico",
+      message: "Isso remove o historico salvo localmente do app.",
+      confirmLabel: "Limpar historico",
+      tone: "danger"
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
+    setState((current) => ({
+      ...current,
+      history: [],
+      lastUpdate: new Date().toISOString()
+    }));
+
+    showFeedback("Historico limpo.", "success");
   }
 
   async function importBackup(file) {
@@ -667,8 +753,11 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
     handleToggleExercise,
     handleUsedWeightChange,
     saveBodyWeight,
+    deleteBodyWeightEntry,
     completeWorkoutForDate,
-    syncNow,
+    saveSync,
+    refreshSync,
+    clearHistory,
     clearChecks,
     clearAllData,
     importBackup,

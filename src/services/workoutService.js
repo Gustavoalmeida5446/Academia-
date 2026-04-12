@@ -4,6 +4,20 @@ import { todayString } from "../utils/date";
 import { makeExerciseKey } from "../utils/keys";
 import { normalizeExercise } from "../utils/normalizeExercise";
 
+function normalizeBodyWeightHistory(items) {
+  if (!Array.isArray(items)) return [];
+
+  return items
+    .map((item) => ({
+      id: String(item?.id || `${item?.date || todayString()}-${item?.weight || ""}`),
+      date: item?.date || "",
+      weight: item?.weight ?? "",
+      createdAt: item?.createdAt || ""
+    }))
+    .filter((item) => item.date && item.weight !== "" && item.weight !== null && item.weight !== undefined)
+    .sort((a, b) => new Date(b.date) - new Date(a.date));
+}
+
 export function normalizeWorkouts(workouts) {
   if (Array.isArray(workouts)) {
     return workouts
@@ -58,6 +72,7 @@ export function createDefaultState() {
     recordDate: todayString(),
     bodyWeight: "",
     bodyWeightDate: "",
+    bodyWeightHistory: [],
     lastUpdate: "",
     workouts,
     exercises: createDefaultExerciseState(workouts),
@@ -80,6 +95,7 @@ export function mergeState(saved) {
       ...exerciseBase,
       ...(safeSaved.exercises || {})
     },
+    bodyWeightHistory: normalizeBodyWeightHistory(safeSaved.bodyWeightHistory),
     history: normalizeHistoryEntries(safeSaved.history)
   };
 }

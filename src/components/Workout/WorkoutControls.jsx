@@ -1,10 +1,6 @@
 export function WorkoutControls({
   state,
-  bodyWeightDraft,
-  showSaveBodyWeight,
   syncStatus,
-  onBodyWeightInputChange,
-  onSaveBodyWeight,
   onRecordDateChange,
   onOpenAll,
   onCloseAll,
@@ -23,22 +19,8 @@ export function WorkoutControls({
         Mais opcoes e dados
       </summary>
       <div className="grid gap-4 border-t border-white/10 px-4 py-4 sm:px-5 sm:py-5">
-        <div className="grid gap-4 lg:grid-cols-[1fr_1fr_auto]">
-          <label className="grid gap-2 text-sm text-slate-300">
-            Peso corporal (kg)
-            <input
-              className="input-base"
-              min="0"
-              placeholder="Ex: 67.0"
-              step="0.1"
-              type="number"
-              value={bodyWeightDraft}
-              aria-label="Peso corporal em quilos"
-              onChange={(event) => onBodyWeightInputChange(event.target.value)}
-            />
-          </label>
-
-          <label className="grid gap-2 text-sm text-slate-300">
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)]">
+          <label className="grid gap-2 text-sm text-slate-300 sm:max-w-xs">
             Data do treino
             <input
               className="input-base"
@@ -48,20 +30,6 @@ export function WorkoutControls({
               onChange={(event) => onRecordDateChange(event.target.value)}
             />
           </label>
-
-          {showSaveBodyWeight ? (
-            <div className="grid gap-2 text-sm text-slate-300">
-              <span className="opacity-0">Salvar</span>
-              <button
-                className="btn-primary min-w-[180px]"
-                disabled={busyAction === "bodyWeight"}
-                onClick={onSaveBodyWeight}
-                type="button"
-              >
-                {busyAction === "bodyWeight" ? "Salvando..." : "Salvar peso corporal"}
-              </button>
-            </div>
-          ) : null}
         </div>
 
         <div className="flex flex-wrap gap-3">

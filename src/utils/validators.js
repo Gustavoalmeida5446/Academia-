@@ -13,6 +13,7 @@ export function validateImportedState(parsed) {
   if (!parsed || typeof parsed !== "object") return false;
   if (!parsed.exercises || typeof parsed.exercises !== "object") return false;
   if (parsed.history && !Array.isArray(parsed.history)) return false;
+  if (parsed.bodyWeightHistory && !Array.isArray(parsed.bodyWeightHistory)) return false;
   if (parsed.workouts && !Array.isArray(parsed.workouts)) return false;
   return true;
 }

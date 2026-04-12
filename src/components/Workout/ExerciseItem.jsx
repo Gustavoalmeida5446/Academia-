@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { formatDateTime } from "../../utils/date";
 
 export function ExerciseItem({
@@ -5,8 +6,16 @@ export function ExerciseItem({
   exerciseKey,
   exerciseState,
   onToggle,
-  onWeightChange
+  onSaveWeight,
+  busyAction
 }) {
+  const [weightDraft, setWeightDraft] = useState(exerciseState.usedWeight ?? "");
+  const showSaveWeight = String(weightDraft) !== String(exerciseState.usedWeight ?? "");
+
+  useEffect(() => {
+    setWeightDraft(exerciseState.usedWeight ?? "");
+  }, [exerciseState.usedWeight]);
+
   return (
     <div className="grid gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -32,16 +41,26 @@ export function ExerciseItem({
       <div className="grid gap-3 sm:grid-cols-[220px_auto] sm:items-end">
         <label className="grid gap-2 text-sm text-slate-300">
           Peso usado (kg)
-          <input
-            className="input-base"
-            min="0"
-            placeholder="Ex: 20"
-            step="0.5"
-            type="number"
-            value={exerciseState.usedWeight}
-            aria-label={`Peso usado em ${exercise.name}`}
-            onChange={(event) => onWeightChange(exerciseKey, event.target.value)}
-          />
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <input
+              className="input-base sm:flex-1"
+              min="0"
+              placeholder="Ex: 20"
+              step="0.5"
+              type="number"
+              value={weightDraft}
+              aria-label={`Peso usado em ${exercise.name}`}
+              onChange={(event) => setWeightDraft(event.target.value)}
+            />
+            <button
+              className="btn-secondary sm:min-w-[140px]"
+              disabled={!showSaveWeight || busyAction === `exerciseWeight:${exerciseKey}`}
+              onClick={() => onSaveWeight(exerciseKey, weightDraft)}
+              type="button"
+            >
+              {busyAction === `exerciseWeight:${exerciseKey}` ? "Salvando..." : "Salvar peso"}
+            </button>
+          </div>
         </label>
 
         <div className="flex flex-wrap gap-3">

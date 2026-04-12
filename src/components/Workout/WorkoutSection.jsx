@@ -6,11 +6,12 @@ export function WorkoutSection({
   workouts,
   workoutMap,
   state,
+  busyAction,
   onlyPendingMode,
   expandMode,
   onCreateWorkout,
   onToggleExercise,
-  onWeightChange,
+  onSaveWeight,
   onRenameWorkout,
   onDeleteWorkout,
   onAddExercise,
@@ -50,6 +51,7 @@ export function WorkoutSection({
               workouts={workouts}
               exercises={exercises}
               workoutName={workoutName}
+              busyAction={busyAction}
               onAddExercise={onAddExercise}
               onDeleteExercise={onDeleteExercise}
               onDeleteWorkout={onDeleteWorkout}
@@ -59,7 +61,7 @@ export function WorkoutSection({
                   current === nextWorkoutName ? "" : nextWorkoutName
                 )
               }
-              onWeightChange={onWeightChange}
+              onSaveWeight={onSaveWeight}
               onRenameWorkout={onRenameWorkout}
               onReorderExercise={onReorderExercise}
               onUpdateExercise={onUpdateExercise}

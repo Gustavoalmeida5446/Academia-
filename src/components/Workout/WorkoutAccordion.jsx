@@ -9,12 +9,13 @@ export function WorkoutAccordion({
   workoutName,
   exercises,
   state,
+  busyAction,
   onlyPendingMode,
   expandMode,
   editingEnabled,
   onToggleEditing,
   onToggleExercise,
-  onWeightChange,
+  onSaveWeight,
   onRenameWorkout,
   onDeleteWorkout,
   onAddExercise,
@@ -93,8 +94,9 @@ export function WorkoutAccordion({
                   exercise={exercise}
                   exerciseKey={exerciseKey}
                   exerciseState={state.exercises[exerciseKey]}
+                  busyAction={busyAction}
                   onToggle={onToggleExercise}
-                  onWeightChange={onWeightChange}
+                  onSaveWeight={onSaveWeight}
                 />
               );
             })

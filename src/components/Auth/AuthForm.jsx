@@ -7,7 +7,6 @@ export function AuthForm({
   onSignUp,
   onSignIn,
   onSignOut,
-  onSyncNow,
   onClose,
   supabaseReady,
   busyAction
@@ -78,14 +77,6 @@ export function AuthForm({
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row">
-              <button
-                className="btn-success"
-                disabled={busyAction === "sync"}
-                onClick={onSyncNow}
-                type="button"
-              >
-                {busyAction === "sync" ? "Sincronizando..." : "Sincronizar agora"}
-              </button>
               <button className="btn-secondary" onClick={onSignOut} type="button">
                 Sair
               </button>

@@ -1,4 +1,4 @@
-export function HistoryFilter({ value, onChange }) {
+export function HistoryFilter({ value, onChange, options = [] }) {
   return (
     <label className="grid gap-2 text-sm text-slate-300">
       Filtrar historico
@@ -9,9 +9,11 @@ export function HistoryFilter({ value, onChange }) {
         onChange={(event) => onChange(event.target.value)}
       >
         <option value="todos">Todos os treinos</option>
-        <option value="Treino A">Treino A</option>
-        <option value="Treino B">Treino B</option>
-        <option value="Treino C">Treino C</option>
+        {options.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
       </select>
     </label>
   );
