@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { StatusPill } from "../Feedback/StatusPill";
 import { EmptyWorkoutState } from "./EmptyWorkoutState";
 import { WorkoutAccordion } from "./WorkoutAccordion";
 
@@ -35,17 +36,23 @@ export function WorkoutSection({
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">
             Exercicios
           </p>
-          <h2 className="mt-2 font-display text-2xl text-white">Seus treinos</h2>
+          <h2 className="mt-2 font-display text-3xl text-white">Treinos organizados por bloco</h2>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
+            Cada treino aparece como um card principal, com progresso no topo e exercicios em uma leitura mais direta.
+          </p>
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-slate-300">
+          <StatusPill>
             {onlyPendingMode ? "Filtro: pendentes" : "Filtro: todos"}
-          </div>
+          </StatusPill>
 
-          <form className="flex flex-col gap-3 sm:flex-row" onSubmit={handleCreateWorkout}>
+          <form
+            className="flex flex-col gap-3 rounded-[24px] border border-white/10 bg-slate-950/55 p-3 sm:flex-row sm:items-center"
+            onSubmit={handleCreateWorkout}
+          >
             <input
-              className="input-base min-w-[220px]"
+              className="input-base min-w-[220px] border-white/5 bg-white/[0.03]"
               placeholder="Novo treino"
               value={newWorkoutName}
               onChange={(event) => setNewWorkoutName(event.target.value)}
