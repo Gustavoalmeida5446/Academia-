@@ -1,0 +1,117 @@
+import { defaultWorkouts } from "../data/defaultWorkouts";
+import { normalizeHistoryEntries } from "./historyService";
+import { todayString } from "../utils/date";
+import { makeExerciseKey } from "../utils/keys";
+import { normalizeExercise } from "../utils/normalizeExercise";
+
+export function normalizeWorkouts(workouts) {
+  if (Array.isArray(workouts)) {
+    return workouts
+      .map((workout) => ({
+        name: workout?.name || "",
+        exercises: Array.isArray(workout?.exercises)
+          ? workout.exercises.map(normalizeExercise)
+          : []
+      }))
+      .filter((workout) => workout.name);
+  }
+
+  return Object.entries(workouts || {}).map(([name, exercises]) => ({
+    name,
+    exercises: Array.isArray(exercises) ? exercises.map(normalizeExercise) : []
+  }));
+}
+
+export function createDefaultWorkouts() {
+  return normalizeWorkouts(defaultWorkouts);
+}
+
+export function getWorkoutMap(workouts = createDefaultWorkouts()) {
+  return Object.fromEntries(workouts.map((workout) => [workout.name, workout.exercises]));
+}
+
+export function createDefaultExerciseState(workouts = createDefaultWorkouts()) {
+  const exercises = {};
+
+  workouts.forEach((workout) => {
+    workout.exercises.forEach((exercise) => {
+      const normalized = normalizeExercise(exercise);
+      const key = makeExerciseKey(workout.name, normalized.name);
+
+      exercises[key] = {
+        workout: workout.name,
+        exercise: normalized.name,
+        checked: false,
+        usedWeight: "",
+        updatedAt: ""
+      };
+    });
+  });
+
+  return exercises;
+}
+
+export function createDefaultState() {
+  const workouts = createDefaultWorkouts();
+
+  return {
+    recordDate: todayString(),
+    bodyWeight: "",
+    bodyWeightDate: "",
+    lastUpdate: "",
+    workouts,
+    exercises: createDefaultExerciseState(workouts),
+    history: []
+  };
+}
+
+export function mergeState(saved) {
+  const base = createDefaultState();
+  const safeSaved = saved || {};
+  const workouts = normalizeWorkouts(safeSaved.workouts || base.workouts);
+  const exerciseBase = createDefaultExerciseState(workouts);
+
+  return {
+    ...base,
+    ...safeSaved,
+    workouts,
+    recordDate: safeSaved.recordDate || safeSaved.bodyWeightDate || base.recordDate,
+    exercises: {
+      ...exerciseBase,
+      ...(safeSaved.exercises || {})
+    },
+    history: normalizeHistoryEntries(safeSaved.history)
+  };
+}
+
+export function rebuildExerciseState(workouts, currentExercises = {}) {
+  const nextExercises = {};
+
+  workouts.forEach((workout) => {
+    workout.exercises.forEach((exercise) => {
+      const key = makeExerciseKey(workout.name, exercise.name);
+      const previous = currentExercises[key];
+
+      nextExercises[key] = {
+        workout: workout.name,
+        exercise: exercise.name,
+        checked: previous?.checked || false,
+        usedWeight: previous?.usedWeight ?? "",
+        updatedAt: previous?.updatedAt || ""
+      };
+    });
+  });
+
+  return nextExercises;
+}
+
+export function reorderItems(items, fromIndex, toIndex) {
+  if (toIndex < 0 || toIndex >= items.length) {
+    return items;
+  }
+
+  const nextItems = [...items];
+  const [movedItem] = nextItems.splice(fromIndex, 1);
+  nextItems.splice(toIndex, 0, movedItem);
+  return nextItems;
+}

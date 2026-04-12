@@ -1,0 +1,67 @@
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  * {
+    @apply box-border;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply min-h-screen bg-slate-950 font-body text-slate-100;
+    background-image:
+      radial-gradient(circle at top left, rgba(249, 115, 22, 0.22), transparent 30%),
+      radial-gradient(circle at top right, rgba(14, 165, 233, 0.18), transparent 28%),
+      linear-gradient(180deg, #020617 0%, #0f172a 45%, #020617 100%);
+  }
+
+  button,
+  input,
+  select {
+    @apply font-body;
+  }
+}
+
+@layer components {
+  .panel {
+    @apply rounded-3xl border border-white/10 bg-slate-900/75 shadow-glow backdrop-blur;
+  }
+
+  .input-base {
+    @apply w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-orange-400/70 focus:ring-2 focus:ring-orange-400/20;
+  }
+
+  .btn-base {
+    @apply inline-flex min-h-11 items-center justify-center rounded-2xl px-4 py-3 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .btn-primary {
+    @apply btn-base bg-orange-500 text-slate-950 hover:bg-orange-400 focus:ring-orange-400;
+  }
+
+  .btn-secondary {
+    @apply btn-base border border-white/10 bg-white/5 text-slate-100 hover:bg-white/10 focus:ring-slate-400;
+  }
+
+  .btn-success {
+    @apply btn-base bg-emerald-500 text-slate-950 hover:bg-emerald-400 focus:ring-emerald-400;
+  }
+
+  .btn-danger {
+    @apply btn-base bg-rose-500 text-white hover:bg-rose-400 focus:ring-rose-400;
+  }
+
+  .badge {
+    @apply inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold;
+  }
+}
