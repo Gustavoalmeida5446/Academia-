@@ -45,6 +45,7 @@ export default function App() {
   const [historyFilter, setHistoryFilter] = useState("todos");
   const [bodyWeightDraft, setBodyWeightDraft] = useState("");
   const [expandMode, setExpandMode] = useState("first");
+  const [showAccountScreen, setShowAccountScreen] = useState(false);
 
   const {
     workouts,
@@ -203,46 +204,10 @@ export default function App() {
 
   return (
     <PageShell>
-      <Header currentUser={currentUser} syncStatus={syncStatus} />
-
-      <div className="grid gap-6 xl:grid-cols-[0.92fr_1.08fr]">
-        <AuthForm
-          authForm={authForm}
-          busyAction={busyAction}
-          currentUser={currentUser}
-          onChange={updateAuthForm}
-          onSignIn={handleSignIn}
-          onSignOut={handleSignOut}
-          onSignUp={handleSignUp}
-          onSyncNow={syncNow}
-          supabaseReady={Boolean(supabase)}
-        />
-
-        <WorkoutControls
-          busyAction={busyAction}
-          onlyPendingMode={onlyPendingMode}
-          state={state}
-          syncStatus={syncStatus}
-          onBodyWeightInputChange={handleBodyWeightInputChange}
-          onClearAll={() => clearAllData(requestConfirm)}
-          onClearChecks={() => clearChecks(requestConfirm)}
-          onCloseAll={handleCloseAll}
-          onCompleteWorkout={completeWorkoutForDate}
-          onExportBackup={exportBackup}
-          onImportBackup={importBackup}
-          onOpenAll={handleOpenAll}
-          onRecordDateChange={changeRecordDate}
-          onSaveBodyWeight={handleSaveBodyWeight}
-          onShowAllExercises={handleShowAllExercises}
-          onShowPending={handleShowPending}
-        />
-      </div>
-
-      <StatsCards
-        bodyWeight={state.bodyWeight}
-        doneCount={doneCount}
-        lastUpdate={state.lastUpdate}
-        totalCount={totalCount}
+      <Header
+        currentUser={currentUser}
+        onOpenAccount={() => setShowAccountScreen(true)}
+        syncStatus={syncStatus}
       />
 
       <WorkoutSection
@@ -264,25 +229,59 @@ export default function App() {
         onWeightChange={handleExerciseWeightChange}
       />
 
-      <section className="panel p-5 sm:p-6">
-        <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">
-              Historico
-            </p>
-            <h2 className="mt-2 font-display text-2xl text-white">Registros por data</h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
-              Cada conclusao de treino salva os exercicios do dia com cargas e peso corporal.
-            </p>
-          </div>
+      <WorkoutControls
+        busyAction={busyAction}
+        state={state}
+        syncStatus={syncStatus}
+        onBodyWeightInputChange={handleBodyWeightInputChange}
+        onClearAll={() => clearAllData(requestConfirm)}
+        onClearChecks={() => clearChecks(requestConfirm)}
+        onCloseAll={handleCloseAll}
+        onCompleteWorkout={completeWorkoutForDate}
+        onExportBackup={exportBackup}
+        onImportBackup={importBackup}
+        onOpenAll={handleOpenAll}
+        onRecordDateChange={changeRecordDate}
+        onSaveBodyWeight={handleSaveBodyWeight}
+        onShowAllExercises={handleShowAllExercises}
+        onShowPending={handleShowPending}
+      />
 
-          <div className="w-full sm:max-w-xs">
-            <HistoryFilter value={historyFilter} onChange={setHistoryFilter} />
+      <details className="panel">
+        <summary className="cursor-pointer list-none px-4 py-4 text-sm font-semibold text-slate-300 sm:px-5">
+          Historico e resumo
+        </summary>
+        <div className="grid gap-5 border-t border-white/10 px-4 py-4 sm:px-5">
+          <StatsCards
+            bodyWeight={state.bodyWeight}
+            doneCount={doneCount}
+            lastUpdate={state.lastUpdate}
+            totalCount={totalCount}
+          />
+
+          <div className="grid gap-4">
+            <div className="w-full sm:max-w-xs">
+              <HistoryFilter value={historyFilter} onChange={setHistoryFilter} />
+            </div>
+            <HistoryList history={filteredHistory} />
           </div>
         </div>
+      </details>
 
-        <HistoryList history={filteredHistory} />
-      </section>
+      {showAccountScreen ? (
+        <AuthForm
+          authForm={authForm}
+          busyAction={busyAction}
+          currentUser={currentUser}
+          onChange={updateAuthForm}
+          onClose={() => setShowAccountScreen(false)}
+          onSignIn={handleSignIn}
+          onSignOut={handleSignOut}
+          onSignUp={handleSignUp}
+          onSyncNow={syncNow}
+          supabaseReady={Boolean(supabase)}
+        />
+      ) : null}
 
       <footer className="px-1 pb-4 text-center text-sm leading-6 text-slate-500">
         Os links de video abrem uma busca no YouTube para facilitar a consulta da execucao.

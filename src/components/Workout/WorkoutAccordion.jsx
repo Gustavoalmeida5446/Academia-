@@ -22,7 +22,7 @@ export function WorkoutAccordion({
   onDeleteExercise,
   onReorderExercise
 }) {
-  const [isOpen, setIsOpen] = useState(workoutName === "Treino A");
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     if (expandMode === "all") setIsOpen(true);
@@ -44,32 +44,32 @@ export function WorkoutAccordion({
   }).length;
 
   return (
-    <article className="overflow-hidden rounded-[28px] border border-white/10 bg-slate-900/70">
-      <div className="flex flex-col gap-4 bg-gradient-to-r from-white/[0.06] to-white/[0.02] px-5 py-5 sm:flex-row sm:items-center sm:justify-between">
+    <article className="overflow-hidden rounded-[28px] border border-white/10 bg-slate-900/78">
+      <div className="flex items-center justify-between gap-3 px-4 py-4 sm:px-5">
         <button
-          className="flex-1 text-left"
+          className="min-w-0 flex-1 text-left"
           onClick={() => setIsOpen((current) => !current)}
           type="button"
         >
           <p className="font-display text-2xl text-white">{workoutName}</p>
-          <p className="mt-1 text-sm text-slate-400">{exercises.length} exercicios no total</p>
         </button>
 
-        <div className="flex items-center gap-3">
-          <button className="btn-secondary" onClick={() => onToggleEditing(workoutName)} type="button">
-            {editingEnabled ? "Fechar edicao" : "Editar"}
-          </button>
-          <span className="rounded-full bg-white/5 px-3 py-1 text-sm font-semibold text-slate-200">
-            {doneCount} / {exercises.length} concluidos
-          </span>
-          <button className="text-sm text-slate-400" onClick={() => setIsOpen((current) => !current)} type="button">
-            {isOpen ? "Fechar" : "Abrir"}
-          </button>
+        <div className="flex items-center gap-2">
+          {editingEnabled ? (
+            <button className="btn-secondary" onClick={() => onToggleEditing(workoutName)} type="button">
+              Fechar edicao
+            </button>
+          ) : (
+            <button className="btn-secondary" onClick={() => onToggleEditing(workoutName)} type="button">
+              Editar
+            </button>
+          )}
+          <span className="text-sm text-slate-500">{isOpen ? "−" : "+"}</span>
         </div>
       </div>
 
       {isOpen ? (
-        <div className="grid gap-3 border-t border-white/10 p-4 sm:p-5">
+        <div className="grid gap-4 border-t border-white/10 px-4 py-4 sm:px-5 sm:py-5">
           {editingEnabled ? (
             <WorkoutEditor
               workout={workout}
@@ -99,10 +99,14 @@ export function WorkoutAccordion({
               );
             })
           ) : (
-            <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.03] px-4 py-6 text-center text-sm text-slate-400">
+            <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.03] px-4 py-8 text-center text-sm text-slate-400">
               Nenhum exercicio visivel nesse filtro.
             </div>
           )}
+
+          <div className="text-xs uppercase tracking-[0.2em] text-slate-500">
+            {doneCount} de {exercises.length} exercicios marcados
+          </div>
         </div>
       ) : null}
     </article>

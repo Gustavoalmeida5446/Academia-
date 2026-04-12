@@ -29,32 +29,12 @@ export function WorkoutSection({
   }
 
   return (
-    <section className="panel p-4 sm:p-5">
-      <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">
-            Exercicios
-          </p>
-          <h2 className="mt-2 font-display text-2xl text-white">Seus treinos</h2>
-        </div>
-
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-slate-300">
-            {onlyPendingMode ? "Filtro: pendentes" : "Filtro: todos"}
-          </div>
-
-          <form className="flex flex-col gap-3 sm:flex-row" onSubmit={handleCreateWorkout}>
-            <input
-              className="input-base min-w-[220px]"
-              placeholder="Novo treino"
-              value={newWorkoutName}
-              onChange={(event) => setNewWorkoutName(event.target.value)}
-            />
-            <button className="btn-primary" type="submit">
-              Criar treino
-            </button>
-          </form>
-        </div>
+    <section className="grid gap-4">
+      <div className="flex flex-col gap-3">
+        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">
+          Treinos
+        </p>
+        <h2 className="font-display text-3xl text-white">Escolha um treino para abrir</h2>
       </div>
 
       {entries.length ? (
@@ -89,6 +69,25 @@ export function WorkoutSection({
       ) : (
         <EmptyWorkoutState />
       )}
+
+      <details className="panel">
+        <summary className="cursor-pointer list-none px-4 py-4 text-sm font-semibold text-slate-300 sm:px-5">
+          Editar e criar treinos
+        </summary>
+        <div className="border-t border-white/10 px-4 py-4 sm:px-5">
+          <form className="flex flex-col gap-3 sm:flex-row" onSubmit={handleCreateWorkout}>
+            <input
+              className="input-base min-w-[220px]"
+              placeholder="Novo treino"
+              value={newWorkoutName}
+              onChange={(event) => setNewWorkoutName(event.target.value)}
+            />
+            <button className="btn-primary" type="submit">
+              Criar treino
+            </button>
+          </form>
+        </div>
+      </details>
     </section>
   );
 }
