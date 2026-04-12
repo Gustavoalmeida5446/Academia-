@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { EmptyWorkoutState } from "./EmptyWorkoutState";
 import { WorkoutAccordion } from "./WorkoutAccordion";
 
 export function WorkoutSection({
@@ -66,6 +67,7 @@ export function WorkoutSection({
               onlyPendingMode={onlyPendingMode}
               state={state}
               workout={workouts[index]}
+              workouts={workouts}
               exercises={exercises}
               workoutName={workoutName}
               onAddExercise={onAddExercise}
@@ -85,9 +87,7 @@ export function WorkoutSection({
           ))}
         </div>
       ) : (
-        <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.03] px-4 py-12 text-center text-slate-400">
-          Nenhum treino encontrado.
-        </div>
+        <EmptyWorkoutState />
       )}
     </section>
   );

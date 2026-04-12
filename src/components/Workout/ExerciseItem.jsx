@@ -36,6 +36,7 @@ export function ExerciseItem({
               checked={exerciseState.checked}
               className="h-5 w-5 accent-emerald-400"
               type="checkbox"
+              aria-label={`Marcar ${exercise.name} como feito`}
               onChange={(event) => onToggle(exerciseKey, event.target.checked)}
             />
             <span>Marcar exercicio como feito</span>
@@ -50,6 +51,7 @@ export function ExerciseItem({
               step="0.5"
               type="number"
               value={exerciseState.usedWeight}
+              aria-label={`Peso usado em ${exercise.name}`}
               onChange={(event) => onWeightChange(exerciseKey, event.target.value)}
             />
           </label>

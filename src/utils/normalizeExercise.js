@@ -6,3 +6,17 @@ export function normalizeExercise(exercise) {
     videoQuery: exercise?.videoQuery || exercise?.name || ""
   };
 }
+
+export function normalizeExerciseSuggestion(exercise, source = "local") {
+  const normalized = normalizeExercise(exercise);
+
+  return {
+    ...normalized,
+    source,
+    key: `${normalized.name.toLowerCase()}__${source}`
+  };
+}
+
+export function normalizeExerciseName(value) {
+  return (value || "").trim().toLowerCase();
+}

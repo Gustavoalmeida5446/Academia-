@@ -30,6 +30,18 @@
   select {
     @apply font-body;
   }
+
+  a {
+    @apply outline-none;
+  }
+
+  a:focus-visible,
+  summary:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible {
+    @apply rounded-2xl ring-2 ring-orange-400/70 ring-offset-2 ring-offset-slate-950;
+  }
 }
 
 @layer components {

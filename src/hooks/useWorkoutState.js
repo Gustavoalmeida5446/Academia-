@@ -159,6 +159,8 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
       return;
     }
 
+    setBusyAction("bodyWeight");
+
     const updatedAt = new Date().toISOString();
     const nextState = {
       ...state,
@@ -184,6 +186,7 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
     }
 
     showFeedback("Peso corporal salvo.", "success");
+    setBusyAction("");
   }
 
   async function completeWorkoutForDate() {
@@ -199,6 +202,8 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
       showFeedback("Marque pelo menos um exercicio antes de concluir o treino.", "error");
       return;
     }
+
+    setBusyAction("completeWorkout");
 
     const completedAt = new Date().toISOString();
     const entries = Array.from(workoutsDone).map((workoutName) =>
@@ -231,6 +236,7 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
     }
 
     showFeedback("Treino concluido e salvo no historico.", "success");
+    setBusyAction("");
   }
 
   async function syncNow() {
@@ -271,8 +277,14 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
     }
   }
 
-  async function clearChecks() {
-    if (!window.confirm("Deseja desmarcar todos os exercicios?")) {
+  async function clearChecks(requestConfirm) {
+    const confirmed = await requestConfirm({
+      title: "Desmarcar exercicios",
+      message: "Isso vai remover a marcacao de todos os exercicios do treino atual.",
+      confirmLabel: "Desmarcar tudo"
+    });
+
+    if (!confirmed) {
       return;
     }
 
@@ -312,8 +324,15 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
     }
   }
 
-  async function clearAllData() {
-    if (!window.confirm("Tem certeza que deseja apagar todos os dados?")) {
+  async function clearAllData(requestConfirm) {
+    const confirmed = await requestConfirm({
+      title: "Apagar todos os dados",
+      message: "Essa acao limpa treinos, checks, pesos, historico e dados locais salvos no app.",
+      confirmLabel: "Apagar tudo",
+      tone: "danger"
+    });
+
+    if (!confirmed) {
       return;
     }
 
@@ -450,8 +469,15 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
     showFeedback("Treino renomeado.", "success");
   }
 
-  function deleteWorkout(workoutName) {
-    if (!window.confirm(`Deseja excluir o treino "${workoutName}"?`)) {
+  async function deleteWorkout(workoutName, requestConfirm) {
+    const confirmed = await requestConfirm({
+      title: "Excluir treino",
+      message: `O treino "${workoutName}" e o historico relacionado a ele serao removidos do app.`,
+      confirmLabel: "Excluir treino",
+      tone: "danger"
+    });
+
+    if (!confirmed) {
       return;
     }
 
@@ -572,8 +598,15 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
     showFeedback("Exercicio atualizado.", "success");
   }
 
-  function deleteExercise(workoutName, exerciseName) {
-    if (!window.confirm(`Deseja excluir o exercicio "${exerciseName}"?`)) {
+  async function deleteExercise(workoutName, exerciseName, requestConfirm) {
+    const confirmed = await requestConfirm({
+      title: "Excluir exercicio",
+      message: `O exercicio "${exerciseName}" sera removido do treino "${workoutName}".`,
+      confirmLabel: "Excluir exercicio",
+      tone: "danger"
+    });
+
+    if (!confirmed) {
       return;
     }
 

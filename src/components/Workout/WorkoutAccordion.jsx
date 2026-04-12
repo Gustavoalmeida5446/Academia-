@@ -5,6 +5,7 @@ import { WorkoutEditor } from "./WorkoutEditor";
 
 export function WorkoutAccordion({
   workout,
+  workouts,
   workoutName,
   exercises,
   state,
@@ -72,6 +73,7 @@ export function WorkoutAccordion({
           {editingEnabled ? (
             <WorkoutEditor
               workout={workout}
+              workouts={workouts}
               onAddExercise={onAddExercise}
               onDeleteExercise={onDeleteExercise}
               onDeleteWorkout={onDeleteWorkout}

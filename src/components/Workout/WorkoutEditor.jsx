@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { ExerciseAutocomplete } from "./ExerciseAutocomplete";
 import { ExerciseEditor } from "./ExerciseEditor";
 
 const emptyExerciseForm = {
@@ -10,6 +11,7 @@ const emptyExerciseForm = {
 
 export function WorkoutEditor({
   workout,
+  workouts,
   onRenameWorkout,
   onDeleteWorkout,
   onAddExercise,
@@ -20,6 +22,10 @@ export function WorkoutEditor({
   const [workoutName, setWorkoutName] = useState(workout.name);
   const [exerciseForm, setExerciseForm] = useState(emptyExerciseForm);
 
+  useEffect(() => {
+    setWorkoutName(workout.name);
+  }, [workout.name]);
+
   function submitWorkoutRename(event) {
     event.preventDefault();
     onRenameWorkout(workout.name, workoutName);
@@ -29,6 +35,16 @@ export function WorkoutEditor({
     event.preventDefault();
     onAddExercise(workout.name, exerciseForm);
     setExerciseForm(emptyExerciseForm);
+  }
+
+  function applySuggestion(suggestion) {
+    setExerciseForm((current) => ({
+      ...current,
+      name: suggestion.name,
+      sets: current.sets || suggestion.sets || "3",
+      reps: current.reps || suggestion.reps || "10-12",
+      videoQuery: current.videoQuery || suggestion.videoQuery || suggestion.name
+    }));
   }
 
   return (
@@ -51,15 +67,22 @@ export function WorkoutEditor({
         </button>
       </div>
 
-      <form className="grid gap-3 xl:grid-cols-[1.3fr_0.55fr_0.55fr_1fr_auto]" onSubmit={submitExercise}>
-        <input
-          className="input-base"
-          placeholder="Novo exercicio"
+      <form className="grid gap-3" onSubmit={submitExercise}>
+        <ExerciseAutocomplete
+          label="Novo exercicio"
           value={exerciseForm.name}
-          onChange={(event) =>
-            setExerciseForm((current) => ({ ...current, name: event.target.value }))
+          workouts={workouts}
+          onChange={(value) =>
+            setExerciseForm((current) => ({
+              ...current,
+              name: value,
+              videoQuery: current.videoQuery || value
+            }))
           }
+          onSelectSuggestion={applySuggestion}
         />
+
+        <div className="grid gap-3 xl:grid-cols-[0.55fr_0.55fr_1fr_auto]">
         <input
           className="input-base"
           placeholder="Series"
@@ -87,6 +110,7 @@ export function WorkoutEditor({
         <button className="btn-primary" type="submit">
           Adicionar
         </button>
+        </div>
       </form>
 
       <div className="grid gap-3">
@@ -97,6 +121,7 @@ export function WorkoutEditor({
               canMoveDown={index < workout.exercises.length - 1}
               canMoveUp={index > 0}
               exercise={exercise}
+              workouts={workouts}
               onDelete={() => onDeleteExercise(workout.name, exercise.name)}
               onMoveDown={() => onReorderExercise(workout.name, exercise.name, "down")}
               onMoveUp={() => onReorderExercise(workout.name, exercise.name, "up")}

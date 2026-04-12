@@ -1,3 +1,5 @@
+import { StatusPill } from "../Feedback/StatusPill";
+
 export function AuthForm({
   currentUser,
   authForm,
@@ -18,9 +20,9 @@ export function AuthForm({
           </p>
           <h2 className="mt-2 font-display text-2xl text-white">Acesso e sincronizacao</h2>
         </div>
-        <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-slate-300">
+        <StatusPill tone={supabaseReady ? "success" : "warning"}>
           {supabaseReady ? "Supabase configurado" : "Supabase nao configurado"}
-        </div>
+        </StatusPill>
       </div>
 
       {!currentUser ? (

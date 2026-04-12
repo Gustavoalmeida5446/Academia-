@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { AuthForm } from "./components/Auth/AuthForm";
+import { ConfirmDialog } from "./components/Feedback/ConfirmDialog";
 import { FeedbackMessage } from "./components/Feedback/FeedbackMessage";
 import { HistoryFilter } from "./components/History/HistoryFilter";
 import { HistoryList } from "./components/History/HistoryList";
@@ -31,7 +32,14 @@ function sortHistory(history, historyFilter) {
 }
 
 export default function App() {
-  const { feedback, showFeedback, clearFeedback } = useFeedback();
+  const {
+    feedback,
+    confirmState,
+    showFeedback,
+    clearFeedback,
+    requestConfirm,
+    closeConfirm
+  } = useFeedback();
   const { currentUser, setCurrentUser, authReady } = useAuth(supabase);
   const [authForm, setAuthForm] = useState({ email: "", password: "" });
   const [historyFilter, setHistoryFilter] = useState("todos");
@@ -212,16 +220,15 @@ export default function App() {
 
         <WorkoutControls
           busyAction={busyAction}
-          historyFilter={historyFilter}
           onlyPendingMode={onlyPendingMode}
           state={state}
+          syncStatus={syncStatus}
           onBodyWeightInputChange={handleBodyWeightInputChange}
-          onClearAll={clearAllData}
-          onClearChecks={clearChecks}
+          onClearAll={() => clearAllData(requestConfirm)}
+          onClearChecks={() => clearChecks(requestConfirm)}
           onCloseAll={handleCloseAll}
           onCompleteWorkout={completeWorkoutForDate}
           onExportBackup={exportBackup}
-          onHistoryFilterChange={setHistoryFilter}
           onImportBackup={importBackup}
           onOpenAll={handleOpenAll}
           onRecordDateChange={changeRecordDate}
@@ -246,8 +253,10 @@ export default function App() {
         workoutMap={workoutMap}
         onAddExercise={addExercise}
         onCreateWorkout={createWorkout}
-        onDeleteExercise={deleteExercise}
-        onDeleteWorkout={deleteWorkout}
+        onDeleteExercise={(workoutName, exerciseName) =>
+          deleteExercise(workoutName, exerciseName, requestConfirm)
+        }
+        onDeleteWorkout={(workoutName) => deleteWorkout(workoutName, requestConfirm)}
         onRenameWorkout={renameWorkout}
         onReorderExercise={reorderExercise}
         onToggleExercise={handleToggleExercise}
@@ -281,6 +290,11 @@ export default function App() {
       </footer>
 
       <FeedbackMessage feedback={feedback} onClose={clearFeedback} />
+      <ConfirmDialog
+        confirmState={confirmState}
+        onCancel={() => closeConfirm(false)}
+        onConfirm={() => closeConfirm(true)}
+      />
     </PageShell>
   );
 }

@@ -22,7 +22,7 @@ export function StatsCards({ doneCount, totalCount, bodyWeight, lastUpdate }) {
   ];
 
   return (
-    <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+    <section aria-label="Resumo do treino" className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
       {cards.map((card) => (
         <article
           key={card.label}
