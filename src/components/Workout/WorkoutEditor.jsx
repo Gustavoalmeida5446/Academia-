@@ -5,8 +5,7 @@ import { ExerciseEditor } from "./ExerciseEditor";
 const emptyExerciseForm = {
   name: "",
   sets: "3",
-  reps: "10-12",
-  videoQuery: ""
+  reps: "10-12"
 };
 
 export function WorkoutEditor({
@@ -42,8 +41,7 @@ export function WorkoutEditor({
       ...current,
       name: suggestion.name,
       sets: current.sets || suggestion.sets || "3",
-      reps: current.reps || suggestion.reps || "10-12",
-      videoQuery: current.videoQuery || suggestion.videoQuery || suggestion.name
+      reps: current.reps || suggestion.reps || "10-12"
     }));
   }
 
@@ -75,41 +73,32 @@ export function WorkoutEditor({
           onChange={(value) =>
             setExerciseForm((current) => ({
               ...current,
-              name: value,
-              videoQuery: current.videoQuery || value
+              name: value
             }))
           }
           onSelectSuggestion={applySuggestion}
         />
 
-        <div className="grid gap-3 xl:grid-cols-[0.55fr_0.55fr_1fr_auto]">
-        <input
-          className="input-base"
-          placeholder="Series"
-          value={exerciseForm.sets}
-          onChange={(event) =>
-            setExerciseForm((current) => ({ ...current, sets: event.target.value }))
-          }
-        />
-        <input
-          className="input-base"
-          placeholder="Reps"
-          value={exerciseForm.reps}
-          onChange={(event) =>
-            setExerciseForm((current) => ({ ...current, reps: event.target.value }))
-          }
-        />
-        <input
-          className="input-base"
-          placeholder="Busca do video"
-          value={exerciseForm.videoQuery}
-          onChange={(event) =>
-            setExerciseForm((current) => ({ ...current, videoQuery: event.target.value }))
-          }
-        />
-        <button className="btn-primary" type="submit">
-          Adicionar
-        </button>
+        <div className="grid gap-3 xl:grid-cols-[0.55fr_0.55fr_auto]">
+          <input
+            className="input-base"
+            placeholder="Series"
+            value={exerciseForm.sets}
+            onChange={(event) =>
+              setExerciseForm((current) => ({ ...current, sets: event.target.value }))
+            }
+          />
+          <input
+            className="input-base"
+            placeholder="Reps"
+            value={exerciseForm.reps}
+            onChange={(event) =>
+              setExerciseForm((current) => ({ ...current, reps: event.target.value }))
+            }
+          />
+          <button className="btn-primary" type="submit">
+            Adicionar
+          </button>
         </div>
       </form>
 

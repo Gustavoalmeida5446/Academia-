@@ -519,7 +519,7 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
             name: trimmedName,
             sets: exerciseData.sets.trim() || "3",
             reps: exerciseData.reps.trim() || "10-12",
-            videoQuery: exerciseData.videoQuery.trim() || trimmedName
+            videoQuery: trimmedName
           }
         ]
       };
@@ -562,7 +562,7 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
                 name: trimmedName,
                 sets: updates.sets.trim(),
                 reps: updates.reps.trim(),
-                videoQuery: updates.videoQuery.trim() || trimmedName
+                videoQuery: trimmedName
               }
             : exercise
         )

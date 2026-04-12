@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AuthForm } from "./components/Auth/AuthForm";
 import { ConfirmDialog } from "./components/Feedback/ConfirmDialog";
 import { FeedbackMessage } from "./components/Feedback/FeedbackMessage";
@@ -85,6 +85,11 @@ export default function App() {
     () => sortHistory(state.history || [], historyFilter),
     [state.history, historyFilter]
   );
+  const showSaveBodyWeight = bodyWeightDraft !== String(state.bodyWeight ?? "");
+
+  useEffect(() => {
+    setBodyWeightDraft(String(state.bodyWeight ?? ""));
+  }, [state.bodyWeight]);
 
   function updateAuthForm(field, value) {
     setAuthForm((current) => ({
@@ -169,14 +174,10 @@ export default function App() {
     }
 
     setBodyWeightDraft(nextValue ?? "");
-    setState((current) => ({
-      ...current,
-      bodyWeight: nextValue ?? ""
-    }));
   }
 
   async function handleSaveBodyWeight() {
-    const nextValue = sanitizeNumericInput(bodyWeightDraft === "" ? state.bodyWeight : bodyWeightDraft);
+    const nextValue = sanitizeNumericInput(bodyWeightDraft);
     await saveBodyWeight(nextValue === null ? null : nextValue);
   }
 
@@ -231,6 +232,8 @@ export default function App() {
 
       <WorkoutControls
         busyAction={busyAction}
+        bodyWeightDraft={bodyWeightDraft}
+        showSaveBodyWeight={showSaveBodyWeight}
         state={state}
         syncStatus={syncStatus}
         onBodyWeightInputChange={handleBodyWeightInputChange}

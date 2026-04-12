@@ -14,16 +14,14 @@ export function ExerciseEditor({
   const [draft, setDraft] = useState({
     name: exercise.name,
     sets: exercise.sets,
-    reps: exercise.reps,
-    videoQuery: exercise.videoQuery
+    reps: exercise.reps
   });
 
   useEffect(() => {
     setDraft({
       name: exercise.name,
       sets: exercise.sets,
-      reps: exercise.reps,
-      videoQuery: exercise.videoQuery
+      reps: exercise.reps
     });
   }, [exercise]);
 
@@ -39,8 +37,7 @@ export function ExerciseEditor({
       ...current,
       name: suggestion.name,
       sets: current.sets || suggestion.sets || "3",
-      reps: current.reps || suggestion.reps || "10-12",
-      videoQuery: current.videoQuery || suggestion.videoQuery || suggestion.name
+      reps: current.reps || suggestion.reps || "10-12"
     }));
   }
 
@@ -55,28 +52,22 @@ export function ExerciseEditor({
           onSelectSuggestion={applySuggestion}
         />
 
-        <div className="grid gap-3 xl:grid-cols-[0.45fr_0.45fr_1fr_auto]">
-        <input
-          className="input-base"
-          placeholder="Series"
-          value={draft.sets}
-          onChange={(event) => updateDraft("sets", event.target.value)}
-        />
-        <input
-          className="input-base"
-          placeholder="Reps"
-          value={draft.reps}
-          onChange={(event) => updateDraft("reps", event.target.value)}
-        />
-        <input
-          className="input-base"
-          placeholder="Busca do video"
-          value={draft.videoQuery}
-          onChange={(event) => updateDraft("videoQuery", event.target.value)}
-        />
-        <button className="btn-secondary" onClick={() => onSave(draft)} type="button">
-          Salvar
-        </button>
+        <div className="grid gap-3 xl:grid-cols-[0.45fr_0.45fr_auto]">
+          <input
+            className="input-base"
+            placeholder="Series"
+            value={draft.sets}
+            onChange={(event) => updateDraft("sets", event.target.value)}
+          />
+          <input
+            className="input-base"
+            placeholder="Reps"
+            value={draft.reps}
+            onChange={(event) => updateDraft("reps", event.target.value)}
+          />
+          <button className="btn-secondary" onClick={() => onSave(draft)} type="button">
+            Salvar
+          </button>
         </div>
       </div>
 

@@ -1,5 +1,7 @@
 export function WorkoutControls({
   state,
+  bodyWeightDraft,
+  showSaveBodyWeight,
   syncStatus,
   onBodyWeightInputChange,
   onSaveBodyWeight,
@@ -30,7 +32,7 @@ export function WorkoutControls({
               placeholder="Ex: 67.0"
               step="0.1"
               type="number"
-              value={state.bodyWeight}
+              value={bodyWeightDraft}
               aria-label="Peso corporal em quilos"
               onChange={(event) => onBodyWeightInputChange(event.target.value)}
             />
@@ -47,17 +49,19 @@ export function WorkoutControls({
             />
           </label>
 
-          <div className="grid gap-2 text-sm text-slate-300">
-            <span className="opacity-0">Salvar</span>
-            <button
-              className="btn-primary min-w-[180px]"
-              disabled={busyAction === "bodyWeight"}
-              onClick={onSaveBodyWeight}
-              type="button"
-            >
-              {busyAction === "bodyWeight" ? "Salvando..." : "Salvar peso corporal"}
-            </button>
-          </div>
+          {showSaveBodyWeight ? (
+            <div className="grid gap-2 text-sm text-slate-300">
+              <span className="opacity-0">Salvar</span>
+              <button
+                className="btn-primary min-w-[180px]"
+                disabled={busyAction === "bodyWeight"}
+                onClick={onSaveBodyWeight}
+                type="button"
+              >
+                {busyAction === "bodyWeight" ? "Salvando..." : "Salvar peso corporal"}
+              </button>
+            </div>
+          ) : null}
         </div>
 
         <div className="flex flex-wrap gap-3">

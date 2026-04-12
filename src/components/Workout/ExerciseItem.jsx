@@ -1,5 +1,4 @@
 import { formatDateTime } from "../../utils/date";
-import { youtubeSearchLink } from "../../utils/format";
 
 export function ExerciseItem({
   exercise,
@@ -46,14 +45,6 @@ export function ExerciseItem({
         </label>
 
         <div className="flex flex-wrap gap-3">
-          <a
-            className="btn-secondary"
-            href={youtubeSearchLink(exercise.videoQuery)}
-            rel="noreferrer"
-            target="_blank"
-          >
-            Ver execucao
-          </a>
           <span className="self-center text-sm text-slate-500">
             Ultima alteracao: {formatDateTime(exerciseState.updatedAt)}
           </span>
