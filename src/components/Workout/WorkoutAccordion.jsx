@@ -16,6 +16,7 @@ export function WorkoutAccordion({
   onToggleEditing,
   onToggleExercise,
   onSaveWeight,
+  onCompleteWorkout,
   onRenameWorkout,
   onDeleteWorkout,
   onAddExercise,
@@ -43,6 +44,7 @@ export function WorkoutAccordion({
     const exerciseKey = makeExerciseKey(workoutName, exercise.name);
     return state.exercises[exerciseKey]?.checked;
   }).length;
+  const canCompleteWorkout = exercises.length > 0 && doneCount === exercises.length;
 
   return (
     <article className="overflow-hidden rounded-[28px] border border-white/10 bg-slate-900/78">
@@ -105,6 +107,19 @@ export function WorkoutAccordion({
               Nenhum exercicio visivel nesse filtro.
             </div>
           )}
+
+          {canCompleteWorkout ? (
+            <div className="flex justify-start">
+              <button
+                className="btn-primary"
+                disabled={busyAction === "completeWorkout"}
+                onClick={() => onCompleteWorkout(workoutName)}
+                type="button"
+              >
+                {busyAction === "completeWorkout" ? "Concluindo..." : "Concluir treino"}
+              </button>
+            </div>
+          ) : null}
 
           <div className="text-xs uppercase tracking-[0.2em] text-slate-500">
             {doneCount} de {exercises.length} exercicios marcados

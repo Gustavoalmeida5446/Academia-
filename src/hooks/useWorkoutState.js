@@ -235,34 +235,57 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
     showFeedback("Registro de peso removido.", "success");
   }
 
-  async function completeWorkoutForDate() {
-    const workoutsDone = new Set();
+  async function completeWorkout(workoutName) {
+    const eligibleWorkouts = state.workouts
+      .filter((workout) => {
+        if (workoutName && workout.name !== workoutName) {
+          return false;
+        }
 
-    Object.values(state.exercises).forEach((item) => {
-      if (item.checked) {
-        workoutsDone.add(item.workout);
-      }
-    });
+        if (!workout.exercises.length) {
+          return false;
+        }
 
-    if (!workoutsDone.size) {
-      showFeedback("Marque pelo menos um exercicio antes de concluir o treino.", "error");
+        return workout.exercises.every((exercise) => {
+          const exerciseKey = makeExerciseKey(workout.name, exercise.name);
+          return state.exercises[exerciseKey]?.checked;
+        });
+      })
+      .map((workout) => workout.name);
+
+    if (!eligibleWorkouts.length) {
+      showFeedback("Marque todos os exercicios do treino antes de concluir.", "error");
       return;
     }
 
     setBusyAction("completeWorkout");
 
     const completedAt = new Date().toISOString();
-    const entries = Array.from(workoutsDone).map((workoutName) =>
+    const entries = eligibleWorkouts.map((name) =>
       buildHistoryEntry({
         state,
-        workoutName,
+        workoutName: name,
         recordDate: state.recordDate,
         completedAt
       })
     );
 
+    const nextExercises = Object.fromEntries(
+      Object.entries(state.exercises).map(([key, item]) => [
+        key,
+        eligibleWorkouts.includes(item.workout)
+          ? {
+              ...item,
+              checked: false,
+              updatedAt: completedAt
+            }
+          : item
+      ])
+    );
+
     const nextState = {
       ...state,
+      exercises: nextExercises,
       lastUpdate: completedAt,
       history: normalizeHistoryEntries([...(state.history || []), ...entries])
     };
@@ -281,7 +304,7 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
       }
     }
 
-    showFeedback("Treino concluido e salvo no historico.", "success");
+    showFeedback("Treino concluido e checks limpos.", "success");
     setBusyAction("");
   }
 
@@ -754,7 +777,7 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
     handleUsedWeightChange,
     saveBodyWeight,
     deleteBodyWeightEntry,
-    completeWorkoutForDate,
+    completeWorkout,
     saveSync,
     refreshSync,
     clearHistory,

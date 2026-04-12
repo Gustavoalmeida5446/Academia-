@@ -12,6 +12,7 @@ export function WorkoutSection({
   onCreateWorkout,
   onToggleExercise,
   onSaveWeight,
+  onCompleteWorkout,
   onRenameWorkout,
   onDeleteWorkout,
   onAddExercise,
@@ -55,6 +56,7 @@ export function WorkoutSection({
               onAddExercise={onAddExercise}
               onDeleteExercise={onDeleteExercise}
               onDeleteWorkout={onDeleteWorkout}
+              onCompleteWorkout={onCompleteWorkout}
               onToggleExercise={onToggleExercise}
               onToggleEditing={(nextWorkoutName) =>
                 setEditingWorkoutName((current) =>

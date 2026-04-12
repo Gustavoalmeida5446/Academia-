@@ -17,6 +17,7 @@ import {
   signUpWithEmail
 } from "./services/authService";
 import { getDoneCount, getTotalCount } from "./services/exerciseService";
+import { makeExerciseKey } from "./utils/keys";
 import { sanitizeNumericInput } from "./utils/validators";
 
 const supabase = getSupabaseClient();
@@ -57,6 +58,7 @@ export default function App() {
     busyAction,
     handleToggleExercise,
     handleUsedWeightChange,
+    completeWorkout,
     saveBodyWeight,
     deleteBodyWeightEntry,
     saveSync,
@@ -84,6 +86,17 @@ export default function App() {
   const filteredHistory = useMemo(
     () => sortHistory(state.history || [], historyFilter),
     [state.history, historyFilter]
+  );
+  const completableWorkoutCount = useMemo(
+    () =>
+      workouts.filter((workout) => {
+        if (!workout.exercises.length) return false;
+        return workout.exercises.every((exercise) => {
+          const exerciseKey = `${workout.name}__${exercise.name}`;
+          return state.exercises[exerciseKey]?.checked;
+        });
+      }).length,
+    [workouts, state.exercises]
   );
   const bodyWeightHistory = useMemo(
     () => [...(state.bodyWeightHistory || [])].sort((a, b) => new Date(b.date) - new Date(a.date)),
@@ -177,6 +190,37 @@ export default function App() {
     await handleUsedWeightChange(exerciseKey, nextValue ?? "");
   }
 
+  async function handleExerciseToggle(exerciseKey, checked) {
+    const workoutName = state.exercises[exerciseKey]?.workout;
+    const workout = workouts.find((item) => item.name === workoutName);
+
+    const willCompleteWorkout = Boolean(
+      checked &&
+      workout &&
+      workout.exercises.length &&
+      workout.exercises.every((exercise) => {
+        const key = makeExerciseKey(workout.name, exercise.name);
+        return key === exerciseKey ? checked : state.exercises[key]?.checked;
+      })
+    );
+
+    await handleToggleExercise(exerciseKey, checked);
+
+    if (!willCompleteWorkout) {
+      return;
+    }
+
+    const confirmed = await requestConfirm({
+      title: "Concluir treino",
+      message: `Todos os exercicios de "${workoutName}" foram marcados. Deseja concluir esse treino agora?`,
+      confirmLabel: "Concluir treino"
+    });
+
+    if (confirmed) {
+      await completeWorkout(workoutName);
+    }
+  }
+
   function handleBodyWeightInputChange(value) {
     const nextValue = sanitizeNumericInput(value);
     if (value !== "" && nextValue === null) return;
@@ -251,6 +295,14 @@ export default function App() {
             <button className="btn-secondary" onClick={handleShowAllExercises} type="button">
               Mostrar todos
             </button>
+            <button
+              className="btn-primary"
+              disabled={!completableWorkoutCount || busyAction === "completeWorkout"}
+              onClick={() => completeWorkout()}
+              type="button"
+            >
+              {busyAction === "completeWorkout" ? "Concluindo..." : "Concluir treino"}
+            </button>
           </div>
 
           <WorkoutSection
@@ -266,9 +318,10 @@ export default function App() {
               deleteExercise(workoutName, exerciseName, requestConfirm)
             }
             onDeleteWorkout={(workoutName) => deleteWorkout(workoutName, requestConfirm)}
+            onCompleteWorkout={completeWorkout}
             onRenameWorkout={renameWorkout}
             onReorderExercise={reorderExercise}
-            onToggleExercise={handleToggleExercise}
+            onToggleExercise={handleExerciseToggle}
             onUpdateExercise={updateExerciseDefinition}
             onSaveWeight={handleExerciseWeightChange}
           />
