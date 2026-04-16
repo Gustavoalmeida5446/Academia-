@@ -14,14 +14,20 @@ export function ExerciseEditor({
   const [draft, setDraft] = useState({
     name: exercise.name,
     sets: exercise.sets,
-    reps: exercise.reps
+    reps: exercise.reps,
+    muscleGroup: exercise.muscleGroup || "",
+    mediaUrl: exercise.mediaUrl || "",
+    externalId: exercise.externalId || ""
   });
 
   useEffect(() => {
     setDraft({
       name: exercise.name,
       sets: exercise.sets,
-      reps: exercise.reps
+      reps: exercise.reps,
+      muscleGroup: exercise.muscleGroup || "",
+      mediaUrl: exercise.mediaUrl || "",
+      externalId: exercise.externalId || ""
     });
   }, [exercise]);
 
@@ -37,7 +43,10 @@ export function ExerciseEditor({
       ...current,
       name: suggestion.name,
       sets: current.sets || suggestion.sets || "3",
-      reps: current.reps || suggestion.reps || "10-12"
+      reps: current.reps || suggestion.reps || "10-12",
+      muscleGroup: suggestion.muscleGroup || "",
+      mediaUrl: suggestion.mediaUrl || "",
+      externalId: suggestion.externalId || ""
     }));
   }
 

@@ -97,8 +97,7 @@ export function ExerciseAutocomplete({
                 >
                   <span className="block font-medium text-white">{suggestion.name}</span>
                   <span className="mt-1 block text-xs text-slate-400">
-                    {sourceLabels[suggestion.source]} • {suggestion.sets || "3"} series •{" "}
-                    {suggestion.reps || "10-12"} reps
+                    {sourceLabels[suggestion.source]} • {suggestion.muscleGroup || "Grupo geral"} • {suggestion.sets || "3"}x{suggestion.reps || "10-12"}
                   </span>
                 </button>
               ))}
