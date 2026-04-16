@@ -3,7 +3,10 @@ export function normalizeExercise(exercise) {
     name: exercise?.name || "",
     sets: exercise?.sets || "",
     reps: exercise?.reps || "",
-    videoQuery: exercise?.videoQuery || exercise?.name || ""
+    videoQuery: exercise?.videoQuery || exercise?.name || "",
+    muscleGroup: exercise?.muscleGroup || "",
+    mediaUrl: exercise?.mediaUrl || "",
+    externalId: exercise?.externalId || ""
   };
 }
 
