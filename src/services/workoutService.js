@@ -1,4 +1,9 @@
 import { defaultWorkouts } from "../data/defaultWorkouts";
+import {
+  defaultDietPlan,
+  defaultFoods,
+  defaultPlanParameters
+} from "../data/spreadsheetDefaults";
 import { normalizeHistoryEntries } from "./historyService";
 import { todayString } from "../utils/date";
 import { makeExerciseKey } from "../utils/keys";
@@ -16,6 +21,42 @@ function normalizeBodyWeightHistory(items) {
     }))
     .filter((item) => item.date && item.weight !== "" && item.weight !== null && item.weight !== undefined)
     .sort((a, b) => new Date(b.date) - new Date(a.date));
+}
+
+function normalizeFoods(items) {
+  if (!Array.isArray(items)) return [];
+
+  return items
+    .map((item) => ({
+      id: item?.id || crypto.randomUUID(),
+      externalId: item?.externalId || "",
+      name: item?.name || "",
+      protein: Number(item?.protein) || 0,
+      calories: Number(item?.calories) || 0,
+      carbs: Number(item?.carbs) || 0,
+      fat: Number(item?.fat) || 0,
+      source: item?.source || "manual"
+    }))
+    .filter((item) => item.name);
+}
+
+function normalizeDietPlan(plan) {
+  const safePlan = plan || {};
+  const dayKeys = Object.keys(defaultDietPlan);
+
+  return Object.fromEntries(
+    dayKeys.map((day) => [
+      day,
+      Array.isArray(safePlan[day])
+        ? safePlan[day].map((meal) => ({
+            id: meal?.id || crypto.randomUUID(),
+            mealName: meal?.mealName || "Refeicao",
+            foodId: meal?.foodId || "",
+            servings: Number(meal?.servings) || 1
+          }))
+        : []
+    ])
+  );
 }
 
 export function normalizeWorkouts(workouts) {
@@ -76,7 +117,11 @@ export function createDefaultState() {
     lastUpdate: "",
     workouts,
     exercises: createDefaultExerciseState(workouts),
-    history: []
+    history: [],
+    dailyStatus: {},
+    planParameters: { ...defaultPlanParameters },
+    foods: normalizeFoods(defaultFoods),
+    dietPlan: normalizeDietPlan(defaultDietPlan)
   };
 }
 
@@ -96,7 +141,14 @@ export function mergeState(saved) {
       ...(safeSaved.exercises || {})
     },
     bodyWeightHistory: normalizeBodyWeightHistory(safeSaved.bodyWeightHistory),
-    history: normalizeHistoryEntries(safeSaved.history)
+    history: normalizeHistoryEntries(safeSaved.history),
+    planParameters: {
+      ...base.planParameters,
+      ...(safeSaved.planParameters || {})
+    },
+    foods: normalizeFoods(safeSaved.foods || base.foods),
+    dietPlan: normalizeDietPlan(safeSaved.dietPlan || base.dietPlan),
+    dailyStatus: safeSaved.dailyStatus || {}
   };
 }
 

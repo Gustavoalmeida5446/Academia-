@@ -43,7 +43,10 @@ export function Header({
 }) {
   const syncBadge = getSyncBadge(syncStatus);
   const navItems = [
+    { id: "home", label: "Inicio" },
     { id: "treinos", label: "Treinos" },
+    { id: "dieta", label: "Dieta" },
+    { id: "parametros", label: "Parametros" },
     { id: "historico", label: "Historico" },
     { id: "peso", label: "Peso corporal" },
     { id: "dados", label: "Backup e dados" }
