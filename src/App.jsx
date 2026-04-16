@@ -461,43 +461,73 @@ export default function App() {
             </div>
           </div>
 
-          <div className="panel p-4 sm:p-5 grid gap-3">
-            <h3 className="text-lg font-semibold">Alimentos cadastrados</h3>
-            {state.foods.map((food) => (
-              <div key={food.id} className="grid gap-2 rounded-2xl border border-white/10 p-3">
-                <input className="input-base" value={food.name} onChange={(e) => updateFood(food.id, { name: e.target.value })} />
-                <div className="grid gap-2 sm:grid-cols-6">
-                  <input className="input-base" type="number" value={food.protein} onChange={(e) => updateFood(food.id, { protein: e.target.value })} placeholder="Proteina" />
-                  <input className="input-base" type="number" value={food.calories} onChange={(e) => updateFood(food.id, { calories: e.target.value })} placeholder="Calorias" />
-                  <input className="input-base" type="number" value={food.carbs} onChange={(e) => updateFood(food.id, { carbs: e.target.value })} placeholder="Carbo" />
-                  <input className="input-base" type="number" value={food.fat} onChange={(e) => updateFood(food.id, { fat: e.target.value })} placeholder="Gordura" />
-                  <input className="input-base" type="number" value={food.servingSize || 100} onChange={(e) => updateFood(food.id, { servingSize: e.target.value })} placeholder="Base" />
-                  <input className="input-base" value={food.servingUnit || "g"} onChange={(e) => updateFood(food.id, { servingUnit: e.target.value })} placeholder="Unidade" />
+          <div className="grid gap-4 xl:grid-cols-[380px_minmax(0,1fr)]">
+            <div className="grid gap-4">
+              <div className="panel p-4 sm:p-5 grid gap-3">
+                <h3 className="text-lg font-semibold">Buscar alimentos (API)</h3>
+                <input className="input-base" placeholder="Digite para buscar alimentos" value={foodQuery} onChange={(e) => setFoodQuery(e.target.value)} />
+                <p className="text-xs text-slate-400">{foodLoading ? "Buscando..." : "Selecione da API ou cadastre manualmente"}</p>
+                {!foodLoading && foodQuery.trim().length >= 2 && !foodResults.length ? (
+                  <p className="text-xs text-amber-300">API sem resposta no momento. Voce ainda pode cadastrar alimentos manualmente.</p>
+                ) : null}
+                <div className="grid gap-2">
+                  {foodResults.map((food) => (
+                    <button key={food.id} type="button" className="btn-secondary justify-between" onClick={() => addFood(food)}>
+                      <span>{food.name}</span><span>{Math.round(food.calories)} kcal • {Math.round(food.protein)}g P</span>
+                    </button>
+                  ))}
                 </div>
-                <button className="btn-danger sm:w-fit" type="button" onClick={() => deleteFood(food.id)}>Excluir alimento</button>
               </div>
-            ))}
-            <button className="btn-secondary sm:w-fit" type="button" onClick={() => addFood({ name: "Novo alimento", protein: 0, calories: 0, carbs: 0, fat: 0, servingSize: 100, servingUnit: "g", source: "manual" })}>Adicionar manual</button>
-          </div>
 
-          <div className="panel p-4 sm:p-5 grid gap-3">
-            <h3 className="text-lg font-semibold">Planejamento semanal</h3>
-            {weekDays.map((day) => (
-              <div key={day} className="rounded-2xl border border-white/10 p-3 grid gap-2">
-                <div className="flex items-center justify-between"><p className="font-medium capitalize">{day}</p><button className="btn-secondary" type="button" onClick={() => addDietMeal(day, { mealName: "Refeicao", foodId: state.foods[0]?.id || "", servings: 1 })}>Adicionar refeicao</button></div>
-                {(state.dietPlan?.[day] || []).map((meal) => (
-                  <div key={meal.id} className="grid gap-2 sm:grid-cols-[1fr_1fr_180px_auto]">
-                    <input className="input-base" value={meal.mealName} onChange={(e) => updateDietMeal(day, meal.id, { mealName: e.target.value })} />
-                    <select className="input-base" value={meal.foodId} onChange={(e) => updateDietMeal(day, meal.id, { foodId: e.target.value })}>
-                      <option value="">Selecione</option>
-                      {state.foods.map((food) => <option key={food.id} value={food.id}>{food.name}</option>)}
-                    </select>
-                    <input className="input-base" type="number" step="0.1" value={meal.servings} onChange={(e) => updateDietMeal(day, meal.id, { servings: e.target.value })} placeholder="Qtde (base do alimento)" />
-                    <button className="btn-danger" type="button" onClick={() => deleteDietMeal(day, meal.id)}>Excluir</button>
+              <div className="panel p-4 sm:p-5 grid gap-2 text-sm text-slate-300">
+                <h3 className="text-lg font-semibold">Totais de hoje ({todayDayKey})</h3>
+                <p className="text-2xl font-semibold text-white">{Math.round(todayDietTotals.calories)} kcal</p>
+                <p>Proteina: {Math.round(todayDietTotals.protein)} g</p>
+                <p>Carbo: {Math.round(todayDietTotals.carbs)} g</p>
+                <p>Gordura: {Math.round(todayDietTotals.fat)} g</p>
+              </div>
+            </div>
+
+            <div className="grid gap-4">
+              <div className="panel p-4 sm:p-5 grid gap-3">
+                <h3 className="text-lg font-semibold">Alimentos cadastrados</h3>
+                {state.foods.map((food) => (
+                  <div key={food.id} className="grid gap-2 rounded-2xl border border-white/10 p-3">
+                    <input className="input-base" value={food.name} onChange={(e) => updateFood(food.id, { name: e.target.value })} />
+                    <div className="grid gap-2 sm:grid-cols-3">
+                      <input className="input-base" type="number" value={food.protein} onChange={(e) => updateFood(food.id, { protein: e.target.value })} placeholder="Proteina" />
+                      <input className="input-base" type="number" value={food.calories} onChange={(e) => updateFood(food.id, { calories: e.target.value })} placeholder="Calorias" />
+                      <input className="input-base" type="number" value={food.carbs} onChange={(e) => updateFood(food.id, { carbs: e.target.value })} placeholder="Carbo" />
+                      <input className="input-base" type="number" value={food.fat} onChange={(e) => updateFood(food.id, { fat: e.target.value })} placeholder="Gordura" />
+                      <input className="input-base" type="number" value={food.servingSize || 100} onChange={(e) => updateFood(food.id, { servingSize: e.target.value })} placeholder="Base" />
+                      <input className="input-base" value={food.servingUnit || "g"} onChange={(e) => updateFood(food.id, { servingUnit: e.target.value })} placeholder="Unidade" />
+                    </div>
+                    <button className="btn-danger sm:w-fit" type="button" onClick={() => deleteFood(food.id)}>Excluir alimento</button>
+                  </div>
+                ))}
+                <button className="btn-secondary sm:w-fit" type="button" onClick={() => addFood({ name: "Novo alimento", protein: 0, calories: 0, carbs: 0, fat: 0, servingSize: 100, servingUnit: "g", source: "manual" })}>Adicionar manual</button>
+              </div>
+
+              <div className="panel p-4 sm:p-5 grid gap-3">
+                <h3 className="text-lg font-semibold">Planejamento semanal</h3>
+                {weekDays.map((day) => (
+                  <div key={day} className="rounded-2xl border border-white/10 p-3 grid gap-2">
+                    <div className="flex items-center justify-between"><p className="font-medium capitalize">{day}</p><button className="btn-secondary" type="button" onClick={() => addDietMeal(day, { mealName: "Refeicao", foodId: state.foods[0]?.id || "", servings: 1 })}>Adicionar refeicao</button></div>
+                    {(state.dietPlan?.[day] || []).map((meal) => (
+                      <div key={meal.id} className="grid gap-2 sm:grid-cols-[1fr_1fr_140px_auto]">
+                        <input className="input-base" value={meal.mealName} onChange={(e) => updateDietMeal(day, meal.id, { mealName: e.target.value })} />
+                        <select className="input-base" value={meal.foodId} onChange={(e) => updateDietMeal(day, meal.id, { foodId: e.target.value })}>
+                          <option value="">Selecione</option>
+                          {state.foods.map((food) => <option key={food.id} value={food.id}>{food.name}</option>)}
+                        </select>
+                        <input className="input-base" type="number" step="0.1" value={meal.servings} onChange={(e) => updateDietMeal(day, meal.id, { servings: e.target.value })} placeholder="Qtde" />
+                        <button className="btn-danger" type="button" onClick={() => deleteDietMeal(day, meal.id)}>Excluir</button>
+                      </div>
+                    ))}
                   </div>
                 ))}
               </div>
-            ))}
+            </div>
           </div>
 
           <div className="panel p-4 sm:p-5 grid gap-2 text-sm text-slate-300">
