@@ -69,34 +69,44 @@ export async function fetchApiExerciseSuggestions(query) {
     return [];
   }
 
-  try {
-    const response = await fetch(
-      `https://wger.de/api/v2/exerciseinfo/?language=2&limit=12&name=${encodeURIComponent(query)}`
-    );
+  const endpoints = [
+    `https://wger.de/api/v2/exerciseinfo/?language=2&limit=20&name=${encodeURIComponent(query)}`,
+    `https://wger.de/api/v2/exercise/?language=2&limit=20&name=${encodeURIComponent(query)}`,
+    `https://wger.de/api/v2/exerciseinfo/?language=2&limit=50`
+  ];
 
-    if (!response.ok) {
-      return [];
+  for (const endpoint of endpoints) {
+    try {
+      const response = await fetch(endpoint);
+      if (!response.ok) continue;
+
+      const data = await response.json();
+      const results = Array.isArray(data?.results) ? data.results : [];
+
+      const mapped = results
+        .map((item) => {
+          const image = Array.isArray(item.images) ? item.images.find((img) => img.image) : null;
+          return normalizeExerciseSuggestion(
+            {
+              name: item.name,
+              sets: "3",
+              reps: "10-12",
+              videoQuery: item.name,
+              muscleGroup: item.category?.name || "",
+              mediaUrl: image?.image || "",
+              externalId: String(item.id || "")
+            },
+            "api"
+          );
+        })
+        .filter((exercise) => normalizeExerciseName(exercise.name).includes(normalizedQuery))
+        .slice(0, 12);
+
+      if (mapped.length) return mapped;
+    } catch {
+      continue;
     }
-
-    const data = await response.json();
-    const results = Array.isArray(data?.results) ? data.results : [];
-
-    return results.map((item) => {
-      const image = Array.isArray(item.images) ? item.images.find((img) => img.image) : null;
-      return normalizeExerciseSuggestion(
-        {
-          name: item.name,
-          sets: "3",
-          reps: "10-12",
-          videoQuery: item.name,
-          muscleGroup: item.category?.name || "",
-          mediaUrl: image?.image || "",
-          externalId: String(item.id || "")
-        },
-        "api"
-      );
-    });
-  } catch {
-    return [];
   }
+
+  return [];
 }

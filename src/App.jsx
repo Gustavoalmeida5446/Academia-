@@ -4,6 +4,7 @@ import { ConfirmDialog } from "./components/Feedback/ConfirmDialog";
 import { FeedbackMessage } from "./components/Feedback/FeedbackMessage";
 import { HistoryFilter } from "./components/History/HistoryFilter";
 import { HistoryList } from "./components/History/HistoryList";
+import { WeeklyDietTracker } from "./components/Diet/WeeklyDietTracker";
 import { Header } from "./components/Layout/Header";
 import { PageShell } from "./components/Layout/PageShell";
 import { WorkoutSection } from "./components/Workout/WorkoutSection";
@@ -83,7 +84,8 @@ export default function App() {
     deleteFood,
     addDietMeal,
     updateDietMeal,
-    deleteDietMeal
+    deleteDietMeal,
+    toggleDietMealCheck
   } = useWorkoutState({ supabase, currentUser, showFeedback });
 
   const doneCount = useMemo(() => getDoneCount(state.exercises), [state.exercises]);
@@ -230,42 +232,52 @@ export default function App() {
 
       {activeScreen === "home" ? (
         <section className="grid gap-4">
-          <div className="panel p-4 sm:p-5">
-            <h2 className="text-lg font-semibold text-white">Resumo de hoje ({state.recordDate})</h2>
-            <p className="mt-1 text-sm text-slate-400">Mostrando apenas o que importa para o dia atual.</p>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <div className="panel p-4 sm:p-5 grid gap-3">
+            <h2 className="text-lg font-semibold text-white">Execucao diaria ({state.recordDate})</h2>
+            <p className="text-sm text-slate-400">
+              Treino e dieta no mesmo lugar para acompanhar sua rotina sem perder contexto.
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2">
               <label className="panel flex items-center justify-between px-4 py-3 text-sm">
-                <span>Treino concluido</span>
+                <span>Treino do dia concluido</span>
                 <input checked={!!todayStatus.workoutDone} type="checkbox" onChange={(event) => updateDailyStatus({ workoutDone: event.target.checked })} />
               </label>
               <label className="panel flex items-center justify-between px-4 py-3 text-sm">
-                <span>Dieta concluida</span>
+                <span>Dieta do dia concluida</span>
                 <input checked={!!todayStatus.dietDone} type="checkbox" onChange={(event) => updateDailyStatus({ dietDone: event.target.checked })} />
               </label>
             </div>
-          </div>
-
-          <div className="panel p-4 sm:p-5">
-            <h3 className="font-semibold">Treinos do dia</h3>
-            <p className="text-sm text-slate-400">Concluidos: {doneCount} de {totalCount} exercicios.</p>
-          </div>
-
-          <div className="panel p-4 sm:p-5">
-            <h3 className="font-semibold">Dieta de hoje ({todayDayKey})</h3>
-            {todayMeals.length ? (
-              <ul className="mt-3 grid gap-2 text-sm">
-                {todayMeals.map((meal) => {
-                  const food = state.foods.find((item) => item.id === meal.foodId);
-                  return <li key={meal.id}>{meal.mealName}: {food?.name || "Alimento removido"} ({meal.servings} porcao)</li>;
-                })}
-              </ul>
-            ) : (
-              <p className="mt-2 text-sm text-slate-400">Nenhuma refeicao planejada para hoje.</p>
-            )}
-            <p className="mt-3 text-sm text-slate-300">
-              Total: {Math.round(todayDietTotals.calories)} kcal • {Math.round(todayDietTotals.protein)}g P • {Math.round(todayDietTotals.carbs)}g C • {Math.round(todayDietTotals.fat)}g G
+            <p className="text-sm text-slate-300">
+              Hoje ({todayDayKey}): {Math.round(todayDietTotals.calories)} kcal • {Math.round(todayDietTotals.protein)}g P • {Math.round(todayDietTotals.carbs)}g C • {Math.round(todayDietTotals.fat)}g G
             </p>
           </div>
+
+          <WorkoutSection
+            busyAction={busyAction}
+            expandMode={expandMode}
+            onlyPendingMode={onlyPendingMode}
+            state={state}
+            workouts={workouts}
+            workoutMap={workoutMap}
+            onAddExercise={addExercise}
+            onCreateWorkout={createWorkout}
+            onDeleteExercise={(workoutName, exerciseName) => deleteExercise(workoutName, exerciseName, requestConfirm)}
+            onDeleteWorkout={(workoutName) => deleteWorkout(workoutName, requestConfirm)}
+            onCompleteWorkout={completeWorkout}
+            onRenameWorkout={renameWorkout}
+            onReorderExercise={reorderExercise}
+            onToggleExercise={handleExerciseToggle}
+            onUpdateExercise={updateExerciseDefinition}
+            onSaveWeight={handleExerciseWeightChange}
+          />
+
+          <WeeklyDietTracker
+            foods={state.foods}
+            dietPlan={state.dietPlan}
+            weeklyMealChecks={state.weeklyMealChecks}
+            planTargets={planTargets}
+            onToggleMealCheck={toggleDietMealCheck}
+          />
         </section>
       ) : null}
 
@@ -330,9 +342,9 @@ export default function App() {
               <label className="text-sm">Peso de referencia (kg)<input className="input-base mt-1" type="number" step="0.1" value={state.planParameters.weightKg} onChange={(e) => updatePlanParameters({ weightKg: Number(e.target.value) || 0 })} /></label>
               <label className="text-sm">Fator de atividade<input className="input-base mt-1" type="number" step="0.05" value={state.planParameters.activityFactor} onChange={(e) => updatePlanParameters({ activityFactor: Number(e.target.value) || 1 })} /></label>
               <label className="text-sm">Deficit (%)<input className="input-base mt-1" type="number" value={state.planParameters.deficitPercent} onChange={(e) => updatePlanParameters({ deficitPercent: Number(e.target.value) || 0 })} /></label>
-              <label className="text-sm">Proteina alvo (g)<input className="input-base mt-1" type="number" value={state.planParameters.proteinTargetG} onChange={(e) => updatePlanParameters({ proteinTargetG: Number(e.target.value) || 0 })} /></label>
               <label className="text-sm">Carbo alvo (g)<input className="input-base mt-1" type="number" value={state.planParameters.carbsTargetG} onChange={(e) => updatePlanParameters({ carbsTargetG: Number(e.target.value) || 0 })} /></label>
             </div>
+            <p className="text-xs text-slate-400">Proteina alvo calculada automaticamente em 2,2 g/kg conforme o peso informado.</p>
           </div>
 
           <div className="panel p-4 sm:p-5 grid gap-3">
@@ -360,6 +372,9 @@ export default function App() {
             <h3 className="text-lg font-semibold">Buscar alimentos (API)</h3>
             <input className="input-base" placeholder="Digite para buscar alimentos" value={foodQuery} onChange={(e) => setFoodQuery(e.target.value)} />
             <p className="text-xs text-slate-400">{foodLoading ? "Buscando..." : "Selecione da API ou cadastre manualmente"}</p>
+            {!foodLoading && foodQuery.trim().length >= 2 && !foodResults.length ? (
+              <p className="text-xs text-amber-300">API sem resposta no momento. Voce ainda pode cadastrar alimentos manualmente.</p>
+            ) : null}
             <div className="grid gap-2">
               {foodResults.map((food) => (
                 <button key={food.id} type="button" className="btn-secondary justify-between" onClick={() => addFood(food)}>

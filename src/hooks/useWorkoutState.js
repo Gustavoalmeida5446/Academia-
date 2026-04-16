@@ -334,13 +334,16 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
     setState(nextState);
 
     if (supabase && currentUser) {
-      await saveDailyStatusToSupabase({
-        supabase,
-        currentUser,
-        recordDate: state.recordDate,
-        status: nextStatus
-      });
-      await syncAllStateToSupabase({ supabase, currentUser, state: nextState });
+      try {
+        await saveDailyStatusToSupabase({
+          supabase,
+          currentUser,
+          recordDate: state.recordDate,
+          status: nextStatus
+        });
+      } catch {
+        setSyncStatus("error");
+      }
     }
   }
 
@@ -604,11 +607,31 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
   }
 
   function deleteDietMeal(dayKey, mealId) {
+    const dayChecks = state.weeklyMealChecks?.[dayKey] || {};
+    const { [mealId]: _removed, ...remainingDayChecks } = dayChecks;
+
     replaceState({
       ...state,
+      weeklyMealChecks: {
+        ...(state.weeklyMealChecks || {}),
+        [dayKey]: remainingDayChecks
+      },
       dietPlan: {
         ...state.dietPlan,
         [dayKey]: (state.dietPlan?.[dayKey] || []).filter((item) => item.id !== mealId)
+      }
+    });
+  }
+
+  function toggleDietMealCheck(dayKey, mealId, checked) {
+    replaceState({
+      ...state,
+      weeklyMealChecks: {
+        ...(state.weeklyMealChecks || {}),
+        [dayKey]: {
+          ...(state.weeklyMealChecks?.[dayKey] || {}),
+          [mealId]: checked
+        }
       }
     });
   }
@@ -869,6 +892,7 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
     deleteFood,
     addDietMeal,
     updateDietMeal,
-    deleteDietMeal
+    deleteDietMeal,
+    toggleDietMealCheck
   };
 }

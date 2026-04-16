@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { formatDateTime } from "../../utils/date";
 
-export function ExerciseItem({
+function ExerciseItemComponent({
   exercise,
   exerciseKey,
   exerciseState,
@@ -72,3 +72,5 @@ export function ExerciseItem({
     </div>
   );
 }
+
+export const ExerciseItem = memo(ExerciseItemComponent);
