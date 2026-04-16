@@ -4,6 +4,7 @@ import { ConfirmDialog } from "./components/Feedback/ConfirmDialog";
 import { FeedbackMessage } from "./components/Feedback/FeedbackMessage";
 import { HistoryFilter } from "./components/History/HistoryFilter";
 import { HistoryList } from "./components/History/HistoryList";
+import { WeeklyDietTracker } from "./components/Diet/WeeklyDietTracker";
 import { Header } from "./components/Layout/Header";
 import { PageShell } from "./components/Layout/PageShell";
 import { WorkoutSection } from "./components/Workout/WorkoutSection";
@@ -125,7 +126,8 @@ export default function App() {
     deleteFood,
     addDietMeal,
     updateDietMeal,
-    deleteDietMeal
+    deleteDietMeal,
+    toggleDietMealCheck
   } = useWorkoutState({ supabase, currentUser, showFeedback });
 
   const doneCount = useMemo(() => getDoneCount(state.exercises), [state.exercises]);
@@ -288,78 +290,52 @@ export default function App() {
 
       {activeScreen === "home" ? (
         <section className="grid gap-4">
-          <div className="panel p-5 sm:p-6 grid gap-2">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Dashboard diario</p>
-            <h2 className="text-2xl font-semibold text-white">Hoje ({state.recordDate})</h2>
-            <p className="text-sm text-slate-400">Acompanhe o proximo treino, dieta de hoje e status rapido em um unico painel.</p>
-          </div>
-
-          <div className="grid gap-4 lg:grid-cols-2">
-            <section className="panel p-5 sm:p-6 grid gap-4">
-              <div className="grid gap-1">
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Proximo treino</p>
-                <h3 className="text-2xl font-semibold text-white">{nextWorkout?.name || "Nenhum treino cadastrado"}</h3>
-              </div>
-
-              <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-slate-300 grid gap-1">
-                <p>
-                  Ultimo treino concluido: <b>{lastCompletedWorkout?.workout || "Nenhum ainda"}</b>
-                </p>
-                <p className="text-xs text-slate-400">
-                  Data: {lastCompletedWorkout?.recordDate || "Sem registro"}
-                </p>
-              </div>
-
-              <button className="btn-primary sm:w-fit" disabled={!nextWorkout} onClick={handleOpenNextWorkout} type="button">
-                Abrir proximo treino
-              </button>
-            </section>
-
-            <section className="panel p-5 sm:p-6 grid gap-4">
-              <div className="grid gap-1">
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Dieta de hoje</p>
-                <h3 className="text-xl font-semibold capitalize text-white">{todayDayKey}</h3>
-              </div>
-              {todayMeals.length ? (
-                <ul className="grid gap-2 text-sm">
-                  {todayMeals.map((meal) => {
-                    const food = state.foods.find((item) => item.id === meal.foodId);
-                    return (
-                      <li key={meal.id} className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2">
-                        <span className="text-slate-100">{meal.mealName}</span>
-                        <span className="ml-2 text-slate-400">• {food?.name || "Alimento removido"} ({meal.servings} porcao)</span>
-                      </li>
-                    );
-                  })}
-                </ul>
-              ) : (
-                <p className="text-sm text-slate-400">Nenhuma refeicao planejada para hoje.</p>
-              )}
-              <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-slate-300">
-                {Math.round(todayDietTotals.calories)} kcal • {Math.round(todayDietTotals.protein)}g P • {Math.round(todayDietTotals.carbs)}g C • {Math.round(todayDietTotals.fat)}g G
-              </div>
-              <button className="btn-secondary sm:w-fit" onClick={() => handleNavigate("dieta")} type="button">
-                Abrir dieta
-              </button>
-            </section>
-          </div>
-
-          <div className="panel p-5 sm:p-6 grid gap-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Status rapido</p>
-            <p className="text-sm text-slate-300">
-              Peso atual: <b>{state.bodyWeight || "--"} kg</b> • Meta calorica: <b>{Math.round(planTargets.targetCalories)} kcal</b>
+          <div className="panel p-4 sm:p-5 grid gap-3">
+            <h2 className="text-lg font-semibold text-white">Execucao diaria ({state.recordDate})</h2>
+            <p className="text-sm text-slate-400">
+              Treino e dieta no mesmo lugar para acompanhar sua rotina sem perder contexto.
             </p>
             <div className="grid gap-3 sm:grid-cols-2">
-              <label className="rounded-2xl border border-white/10 bg-white/[0.03] flex items-center justify-between px-4 py-3 text-sm">
+              <label className="panel flex items-center justify-between px-4 py-3 text-sm">
                 <span>Treino do dia concluido</span>
                 <input checked={!!todayStatus.workoutDone} type="checkbox" onChange={(event) => updateDailyStatus({ workoutDone: event.target.checked })} />
               </label>
-              <label className="rounded-2xl border border-white/10 bg-white/[0.03] flex items-center justify-between px-4 py-3 text-sm">
+              <label className="panel flex items-center justify-between px-4 py-3 text-sm">
                 <span>Dieta do dia concluida</span>
                 <input checked={!!todayStatus.dietDone} type="checkbox" onChange={(event) => updateDailyStatus({ dietDone: event.target.checked })} />
               </label>
             </div>
+            <p className="text-sm text-slate-300">
+              Hoje ({todayDayKey}): {Math.round(todayDietTotals.calories)} kcal • {Math.round(todayDietTotals.protein)}g P • {Math.round(todayDietTotals.carbs)}g C • {Math.round(todayDietTotals.fat)}g G
+            </p>
           </div>
+
+          <WorkoutSection
+            busyAction={busyAction}
+            expandMode={expandMode}
+            onlyPendingMode={onlyPendingMode}
+            state={state}
+            workouts={workouts}
+            workoutMap={workoutMap}
+            onAddExercise={addExercise}
+            onCreateWorkout={createWorkout}
+            onDeleteExercise={(workoutName, exerciseName) => deleteExercise(workoutName, exerciseName, requestConfirm)}
+            onDeleteWorkout={(workoutName) => deleteWorkout(workoutName, requestConfirm)}
+            onCompleteWorkout={completeWorkout}
+            onRenameWorkout={renameWorkout}
+            onReorderExercise={reorderExercise}
+            onToggleExercise={handleExerciseToggle}
+            onUpdateExercise={updateExerciseDefinition}
+            onSaveWeight={handleExerciseWeightChange}
+          />
+
+          <WeeklyDietTracker
+            foods={state.foods}
+            dietPlan={state.dietPlan}
+            weeklyMealChecks={state.weeklyMealChecks}
+            planTargets={planTargets}
+            onToggleMealCheck={toggleDietMealCheck}
+          />
         </section>
       ) : null}
 
