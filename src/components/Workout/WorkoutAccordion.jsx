@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { makeExerciseKey } from "../../utils/keys";
 import { ExerciseItem } from "./ExerciseItem";
 import { WorkoutEditor } from "./WorkoutEditor";
 
-export function WorkoutAccordion({
+function WorkoutAccordionComponent({
   workout,
   workouts,
   workoutName,
@@ -129,3 +129,5 @@ export function WorkoutAccordion({
     </article>
   );
 }
+
+export const WorkoutAccordion = memo(WorkoutAccordionComponent);

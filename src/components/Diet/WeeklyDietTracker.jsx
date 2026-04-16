@@ -1,9 +1,9 @@
-import { useMemo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 import { calculateDietDayTotals } from "../../services/calculationService";
 
 const weekDays = ["segunda", "terca", "quarta", "quinta", "sexta", "sabado", "domingo"];
 
-export function WeeklyDietTracker({
+function WeeklyDietTrackerComponent({
   foods,
   dietPlan,
   weeklyMealChecks,
@@ -11,14 +11,24 @@ export function WeeklyDietTracker({
   onToggleMealCheck
 }) {
   const [openDay, setOpenDay] = useState("segunda");
+  const foodsMap = useMemo(
+    () => Object.fromEntries((foods || []).map((item) => [item.id, item])),
+    [foods]
+  );
+
+  const dayTotalsByKey = useMemo(
+    () =>
+      Object.fromEntries(
+        weekDays.map((dayKey) => [
+          dayKey,
+          calculateDietDayTotals({ foods, dayMeals: dietPlan?.[dayKey] || [] })
+        ])
+      ),
+    [foods, dietPlan]
+  );
 
   const weekSummary = useMemo(() => {
-    const dayTotals = weekDays.map((dayKey) =>
-      calculateDietDayTotals({
-        foods,
-        dayMeals: dietPlan?.[dayKey] || []
-      })
-    );
+    const dayTotals = Object.values(dayTotalsByKey);
 
     const total = dayTotals.reduce(
       (acc, day) => ({
@@ -36,7 +46,7 @@ export function WeeklyDietTracker({
       avgCarbs: total.carbs / weekDays.length,
       avgFat: total.fat / weekDays.length
     };
-  }, [foods, dietPlan]);
+  }, [dayTotalsByKey]);
 
   const shoppingSummary = useMemo(() => {
     const totalsByFood = {};
@@ -74,7 +84,7 @@ export function WeeklyDietTracker({
       <div className="grid gap-3">
         {weekDays.map((dayKey) => {
           const meals = dietPlan?.[dayKey] || [];
-          const totals = calculateDietDayTotals({ foods, dayMeals: meals });
+          const totals = dayTotalsByKey[dayKey] || { calories: 0, protein: 0, carbs: 0, fat: 0 };
           const checkedMeals = meals.filter((meal) => weeklyMealChecks?.[dayKey]?.[meal.id]).length;
           const isOpen = openDay === dayKey;
 
@@ -100,7 +110,7 @@ export function WeeklyDietTracker({
               {isOpen ? (
                 <div className="border-t border-white/10 px-4 py-3 grid gap-2">
                   {meals.length ? meals.map((meal) => {
-                    const food = foods.find((item) => item.id === meal.foodId);
+                    const food = foodsMap[meal.foodId];
                     const checked = !!weeklyMealChecks?.[dayKey]?.[meal.id];
 
                     return (
@@ -157,3 +167,5 @@ export function WeeklyDietTracker({
     </section>
   );
 }
+
+export const WeeklyDietTracker = memo(WeeklyDietTrackerComponent);

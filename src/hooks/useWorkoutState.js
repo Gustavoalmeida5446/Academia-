@@ -334,13 +334,16 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
     setState(nextState);
 
     if (supabase && currentUser) {
-      await saveDailyStatusToSupabase({
-        supabase,
-        currentUser,
-        recordDate: state.recordDate,
-        status: nextStatus
-      });
-      await syncAllStateToSupabase({ supabase, currentUser, state: nextState });
+      try {
+        await saveDailyStatusToSupabase({
+          supabase,
+          currentUser,
+          recordDate: state.recordDate,
+          status: nextStatus
+        });
+      } catch {
+        setSyncStatus("error");
+      }
     }
   }
 
