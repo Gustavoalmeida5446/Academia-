@@ -135,6 +135,7 @@ export function createDefaultState() {
     exercises: createDefaultExerciseState(workouts),
     history: [],
     dailyStatus: {},
+    weeklyMealChecks: {},
     planParameters: normalizePlanParameters(defaultPlanParameters),
     foods: normalizeFoods(defaultFoods),
     dietPlan: normalizeDietPlan(defaultDietPlan)
@@ -162,7 +163,8 @@ export function mergeState(saved) {
     planParameters: normalizePlanParameters(safeSaved.planParameters),
     foods: normalizeFoods(safeSaved.foods || base.foods),
     dietPlan: normalizeDietPlan(safeSaved.dietPlan || base.dietPlan),
-    dailyStatus: safeSaved.dailyStatus || {}
+    dailyStatus: safeSaved.dailyStatus || {},
+    weeklyMealChecks: safeSaved.weeklyMealChecks || {}
   };
 }
 

@@ -22,20 +22,28 @@ function normalizeFoodSearchItem(item) {
 export async function searchFoodsFromApi(query) {
   if (!query || query.trim().length < 2) return [];
 
-  try {
-    const response = await fetch(
-      `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&json=1&page_size=12`
-    );
+  const endpoints = [
+    `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&json=1&page_size=16`,
+    `https://us.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&json=1&page_size=16`
+  ];
 
-    if (!response.ok) return [];
+  for (const endpoint of endpoints) {
+    try {
+      const response = await fetch(endpoint);
+      if (!response.ok) continue;
 
-    const data = await response.json();
-    const products = Array.isArray(data?.products) ? data.products : [];
+      const data = await response.json();
+      const products = Array.isArray(data?.products) ? data.products : [];
+      const normalized = products
+        .map(normalizeFoodSearchItem)
+        .filter((item) => item.name && (item.protein || item.calories))
+        .slice(0, 12);
 
-    return products
-      .map(normalizeFoodSearchItem)
-      .filter((item) => item.name && (item.protein || item.calories));
-  } catch {
-    return [];
+      if (normalized.length) return normalized;
+    } catch {
+      continue;
+    }
   }
+
+  return [];
 }

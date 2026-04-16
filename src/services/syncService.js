@@ -285,7 +285,21 @@ function buildStateFromRows({
 
 export async function syncExerciseToSupabase({ supabase, currentUser, state }) {
   if (!supabase || !currentUser) return;
-  return saveNormalizedState({ supabase, currentUser, state });
+
+  const updates = Object.values(state.exercises || {}).map((item) => ({
+    user_id: currentUser.id,
+    workout_name: item.workout,
+    exercise_name: item.exercise,
+    checked: !!item.checked,
+    used_weight: item.usedWeight === "" ? null : Number(item.usedWeight),
+    updated_at: item.updatedAt || new Date().toISOString()
+  }));
+
+  if (!updates.length) return;
+
+  return supabase
+    .from("exercise_state")
+    .upsert(updates, { onConflict: "user_id,workout_name,exercise_name" });
 }
 
 export async function syncAllStateToSupabase({ supabase, currentUser, state }) {
