@@ -112,12 +112,14 @@ Se necessário, selecione a branch usada pelo `gh-pages`.
 
 Execute o SQL de `supabase/schema_v2.sql` no Supabase SQL Editor.
 
-Esse schema novo usa duas tabelas:
+Esse schema novo usa tabelas normalizadas:
 
-- `app_state`: guarda o estado essencial completo do app (treinos, exercicios, historico, peso, dieta e parametros)
-- `daily_logs`: guarda apenas os logs diarios da home (`workout_done` e `diet_done`)
+- `workouts`, `exercises` e `exercise_state` para estrutura de treino + checks/pesos
+- `workout_history` e `body_weight_entries` para historico e peso corporal
+- `foods`, `diet_meals` e `plan_parameters` para dieta e parametros
+- `daily_logs` para os logs simples da home (`workout_done` e `diet_done`)
 
-Assim os logs ficam simples e o app segue sincronizando tudo com fallback local.
+Assim os dados ficam editaveis/consultaveis sem depender de um unico JSON.
 
 ## Fluxo de dados
 
@@ -129,7 +131,7 @@ Assim os logs ficam simples e o app segue sincronizando tudo com fallback local.
 ## Observações
 
 - a definição editável dos treinos está salva localmente e no backup JSON
-- o schema atual do Supabase está focado em logs por exercício/data, não em modelar toda a estrutura dos treinos
+- o schema `supabase/schema_v2.sql` e obrigatorio para sincronizacao completa (treinos, dieta e parametros)
 - a parte de API do autocomplete é opcional: se falhar, o app continua funcionando com base local e dados customizados
 
 ## Checklist rápido

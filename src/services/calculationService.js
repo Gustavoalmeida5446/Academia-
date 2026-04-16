@@ -1,43 +1,54 @@
-const GOAL_MULTIPLIER = {
-  ganho_massa: 1,
-  manutencao: 0,
-  perda_gordura: -1
-};
+function round(value, decimals = 2) {
+  const factor = 10 ** decimals;
+  return Math.round((Number(value) || 0) * factor) / factor;
+}
+
+function getBodyWeight({ bodyWeight, planParameters }) {
+  const stateWeight = Number(bodyWeight) || 0;
+  if (stateWeight > 0) return stateWeight;
+  return Number(planParameters?.weightKg) || 0;
+}
 
 export function calculatePlanTargets({ bodyWeight, planParameters }) {
-  const weight = Number(bodyWeight) || 0;
-  const age = Number(planParameters.age) || 0;
-  const height = Number(planParameters.heightCm) || 0;
-  const activityFactor = Number(planParameters.activityFactor) || 1;
-  const adjustment = Number(planParameters.adjustmentCalories) || 0;
-  const proteinPerKg = Number(planParameters.proteinPerKg) || 0;
-  const fatPerKg = Number(planParameters.fatPerKg) || 0;
-  const goalDirection = GOAL_MULTIPLIER[planParameters.goal] ?? 0;
+  const weight = getBodyWeight({ bodyWeight, planParameters });
+  const age = Number(planParameters?.age) || 0;
+  const height = Number(planParameters?.heightCm) || 0;
+  const sex = String(planParameters?.sex || "male").toLowerCase();
+  const activityFactor = Number(planParameters?.activityFactor) || 1;
+  const deficitPercent = Number(planParameters?.deficitPercent) || 0;
+  const proteinTargetG = Number(planParameters?.proteinTargetG) || 0;
+  const carbsTargetG = Number(planParameters?.carbsTargetG) || 0;
 
   if (!weight || !age || !height) {
     return {
-      maintenanceCalories: 0,
+      bmr: 0,
+      tdee: 0,
       targetCalories: 0,
       targetProtein: 0,
-      targetFat: 0,
-      targetCarbs: 0
+      targetCarbs: 0,
+      targetFat: 0
     };
   }
 
-  const bmr = 10 * weight + 6.25 * height - 5 * age + 5;
-  const maintenanceCalories = Math.round(bmr * activityFactor);
-  const targetCalories = Math.round(maintenanceCalories + adjustment * goalDirection);
-  const targetProtein = Math.round(weight * proteinPerKg);
-  const targetFat = Math.round(weight * fatPerKg);
-  const caloriesFromProteinAndFat = targetProtein * 4 + targetFat * 9;
-  const targetCarbs = Math.max(0, Math.round((targetCalories - caloriesFromProteinAndFat) / 4));
+  const sexOffset = sex === "female" ? -161 : 5;
+  const bmr = 10 * weight + 6.25 * height - 5 * age + sexOffset;
+  const tdee = bmr * activityFactor;
+  const targetCalories = tdee * (1 - deficitPercent / 100);
+
+  const targetProtein = proteinTargetG > 0 ? proteinTargetG : weight * 2.2;
+  const targetCarbs = carbsTargetG > 0 ? carbsTargetG : 25;
+  const proteinCalories = targetProtein * 4;
+  const carbsCalories = targetCarbs * 4;
+  const remainingCalories = Math.max(0, targetCalories - proteinCalories - carbsCalories);
+  const targetFat = remainingCalories / 9;
 
   return {
-    maintenanceCalories,
-    targetCalories,
-    targetProtein,
-    targetFat,
-    targetCarbs
+    bmr: round(bmr),
+    tdee: round(tdee),
+    targetCalories: round(targetCalories),
+    targetProtein: round(targetProtein),
+    targetCarbs: round(targetCarbs),
+    targetFat: round(targetFat)
   };
 }
 
@@ -48,6 +59,7 @@ export function calculateDietDayTotals({ foods, dayMeals }) {
     (totals, meal) => {
       const food = foodsMap[meal.foodId];
       if (!food) return totals;
+
       const servings = Number(meal.servings) || 0;
 
       return {
