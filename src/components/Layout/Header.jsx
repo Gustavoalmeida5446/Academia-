@@ -53,7 +53,7 @@ export function Header({
   ];
 
   return (
-    <header className="panel relative px-4 py-4 sm:px-5">
+    <header className="panel relative px-4 py-4 sm:px-6">
       <div className="flex items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
           {currentUser ? (
@@ -76,12 +76,12 @@ export function Header({
               </button>
             </>
           ) : (
-            <span className="text-sm text-slate-500">Modo local</span>
+            <span className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-slate-400">Modo local</span>
           )}
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="hidden text-sm text-slate-500 sm:inline">
+          <span className="hidden rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-slate-400 sm:inline">
             {navItems.find((item) => item.id === activeScreen)?.label}
           </span>
           <button
@@ -106,7 +106,7 @@ export function Header({
             type="button"
           />
 
-          <div className="absolute right-4 top-4 w-[min(22rem,calc(100vw-2rem))] rounded-3xl border border-white/10 bg-slate-950/96 p-3 shadow-2xl shadow-black/50 sm:right-5 sm:top-5">
+          <div className="absolute right-4 top-4 w-[min(22rem,calc(100vw-2rem))] rounded-3xl border border-white/10 bg-slate-950/96 p-3 shadow-2xl shadow-black/50 sm:right-6 sm:top-6">
             <div className="mb-3 flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3">
               <div className="grid gap-1">
                 <span className="text-xs uppercase tracking-[0.2em] text-slate-500">Conta</span>
@@ -127,10 +127,10 @@ export function Header({
               {navItems.map((item) => (
                 <button
                   key={item.id}
-                  className={`rounded-2xl px-4 py-3 text-left text-sm transition ${
+                  className={`rounded-2xl border px-4 py-3 text-left text-sm transition ${
                     activeScreen === item.id
-                      ? "bg-white/10 text-white"
-                      : "bg-transparent text-slate-300 hover:bg-white/[0.05]"
+                      ? "border-white/20 bg-white/10 text-white"
+                      : "border-transparent bg-transparent text-slate-300 hover:border-white/10 hover:bg-white/[0.05]"
                   }`}
                   onClick={() => onNavigate(item.id)}
                   type="button"

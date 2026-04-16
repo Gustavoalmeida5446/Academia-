@@ -22,7 +22,8 @@ function WorkoutAccordionComponent({
   onAddExercise,
   onUpdateExercise,
   onDeleteExercise,
-  onReorderExercise
+  onReorderExercise,
+  shouldOpen
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -30,6 +31,10 @@ function WorkoutAccordionComponent({
     if (expandMode === "all") setIsOpen(true);
     if (expandMode === "none") setIsOpen(false);
   }, [expandMode]);
+
+  useEffect(() => {
+    if (shouldOpen) setIsOpen(true);
+  }, [shouldOpen]);
 
   const visibleExercises = exercises.filter((exercise) => {
     const exerciseKey = makeExerciseKey(workoutName, exercise.name);
@@ -47,14 +52,17 @@ function WorkoutAccordionComponent({
   const canCompleteWorkout = exercises.length > 0 && doneCount === exercises.length;
 
   return (
-    <article className="overflow-hidden rounded-[28px] border border-white/10 bg-slate-900/78">
+    <article className="overflow-hidden rounded-3xl border border-white/10 bg-slate-900/80">
       <div className="flex items-center justify-between gap-3 px-4 py-4 sm:px-5">
         <button
           className="min-w-0 flex-1 text-left"
           onClick={() => setIsOpen((current) => !current)}
           type="button"
         >
-          <p className="font-display text-2xl text-white">{workoutName}</p>
+          <p className="font-display text-2xl leading-tight text-white">{workoutName}</p>
+          <p className="mt-1 text-xs uppercase tracking-[0.2em] text-slate-500">
+            {doneCount} de {exercises.length} exercicios concluidos
+          </p>
         </button>
 
         <div className="flex items-center gap-2">
@@ -67,7 +75,7 @@ function WorkoutAccordionComponent({
               Editar
             </button>
           )}
-          <span className="text-sm text-slate-500">{isOpen ? "−" : "+"}</span>
+          <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/10 text-sm text-slate-400">{isOpen ? "−" : "+"}</span>
         </div>
       </div>
 
@@ -121,9 +129,7 @@ function WorkoutAccordionComponent({
             </div>
           ) : null}
 
-          <div className="text-xs uppercase tracking-[0.2em] text-slate-500">
-            {doneCount} de {exercises.length} exercicios marcados
-          </div>
+          <div className="text-xs uppercase tracking-[0.2em] text-slate-500">Execucao do treino</div>
         </div>
       ) : null}
     </article>

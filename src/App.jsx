@@ -36,6 +36,47 @@ function getWeekDayKey(dateString) {
   return map[date.getDay()];
 }
 
+function getLastCompletedWorkout(history = []) {
+  const validEntries = (history || []).filter((item) => item.workout);
+  if (!validEntries.length) return null;
+
+  return [...validEntries].sort((a, b) => {
+    const aTime = new Date(a.completedAt || `${a.recordDate}T12:00:00`).getTime();
+    const bTime = new Date(b.completedAt || `${b.recordDate}T12:00:00`).getTime();
+    return bTime - aTime;
+  })[0];
+}
+
+function getWorkoutSequence(workouts = []) {
+  const defaultSequence = ["Treino A", "Treino B", "Treino C"];
+  const byNormalizedName = Object.fromEntries(
+    workouts.map((workout) => [workout.name.trim().toLowerCase(), workout])
+  );
+
+  const orderedBySequence = defaultSequence
+    .map((name) => byNormalizedName[name.toLowerCase()])
+    .filter(Boolean);
+
+  if (orderedBySequence.length === defaultSequence.length) {
+    return orderedBySequence;
+  }
+
+  return workouts;
+}
+
+function getNextWorkout(workouts = [], history = []) {
+  if (!workouts.length) return null;
+
+  const sequence = getWorkoutSequence(workouts);
+  const lastCompleted = getLastCompletedWorkout(history);
+  if (!lastCompleted) return sequence[0];
+
+  const currentIndex = sequence.findIndex((workout) => workout.name === lastCompleted.workout);
+  if (currentIndex < 0) return sequence[0];
+
+  return sequence[(currentIndex + 1) % sequence.length];
+}
+
 export default function App() {
   const { feedback, confirmState, showFeedback, clearFeedback, requestConfirm, closeConfirm } = useFeedback();
   const { currentUser, setCurrentUser, authReady } = useAuth(supabase);
@@ -49,6 +90,7 @@ export default function App() {
   const [foodQuery, setFoodQuery] = useState("");
   const [foodResults, setFoodResults] = useState([]);
   const [foodLoading, setFoodLoading] = useState(false);
+  const [focusedWorkoutName, setFocusedWorkoutName] = useState("");
 
   const {
     workouts,
@@ -105,6 +147,8 @@ export default function App() {
     [state.bodyWeight, state.planParameters]
   );
   const todayStatus = state.dailyStatus?.[state.recordDate] || { workoutDone: false, dietDone: false };
+  const lastCompletedWorkout = useMemo(() => getLastCompletedWorkout(state.history || []), [state.history]);
+  const nextWorkout = useMemo(() => getNextWorkout(workouts, state.history || []), [workouts, state.history]);
 
   useEffect(() => {
     if (activeScreen === "peso" || activeScreen === "parametros") {
@@ -212,7 +256,21 @@ export default function App() {
   function handleNavigate(nextScreen) {
     setActiveScreen(nextScreen);
     setMenuOpen(false);
-    if (nextScreen === "treinos") setOnlyPendingMode(false);
+    if (nextScreen === "treinos") {
+      setOnlyPendingMode(false);
+      return;
+    }
+
+    setFocusedWorkoutName("");
+  }
+
+  function handleOpenNextWorkout() {
+    if (!nextWorkout) return;
+    setFocusedWorkoutName(nextWorkout.name);
+    setOnlyPendingMode(false);
+    setExpandMode("none");
+    setActiveScreen("treinos");
+    setMenuOpen(false);
   }
 
   return (
@@ -282,8 +340,13 @@ export default function App() {
       ) : null}
 
       {activeScreen === "treinos" ? (
-        <>
-          <div className="flex flex-wrap gap-3">
+        <section className="grid gap-4">
+          <div className="panel p-5 sm:p-6 grid gap-2">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Treinos</p>
+            <h2 className="text-2xl font-semibold text-white">Execucao e edicao de treinos</h2>
+          </div>
+
+          <div className="panel p-4 sm:p-5 flex flex-wrap gap-3">
             <button className="btn-secondary" onClick={() => setExpandMode("all")} type="button">Abrir todos</button>
             <button className="btn-secondary" onClick={() => setExpandMode("none")} type="button">Fechar todos</button>
             <button className="btn-secondary" onClick={() => setOnlyPendingMode(true)} type="button">So pendentes</button>
@@ -310,12 +373,17 @@ export default function App() {
             onToggleExercise={handleExerciseToggle}
             onUpdateExercise={updateExerciseDefinition}
             onSaveWeight={handleExerciseWeightChange}
+            shouldOpenWorkoutName={focusedWorkoutName}
           />
-        </>
+        </section>
       ) : null}
 
       {activeScreen === "historico" ? (
         <section className="grid gap-4">
+          <div className="panel p-5 sm:p-6 grid gap-2">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Historico</p>
+            <h2 className="text-2xl font-semibold text-white">Treinos concluidos</h2>
+          </div>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div className="grid gap-4 sm:max-w-xs">
               <HistoryFilter options={workoutNames} value={historyFilter} onChange={setHistoryFilter} />
@@ -328,6 +396,10 @@ export default function App() {
 
       {activeScreen === "parametros" ? (
         <section className="grid gap-4">
+          <div className="panel p-5 sm:p-6 grid gap-2">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Parametros</p>
+            <h2 className="text-2xl font-semibold text-white">Dados e calculos do plano</h2>
+          </div>
           <div className="panel p-4 sm:p-5 grid gap-3">
             <h3 className="text-lg font-semibold">Parametros do plano</h3>
             <div className="grid gap-3 sm:grid-cols-2">
@@ -368,6 +440,11 @@ export default function App() {
 
       {activeScreen === "dieta" ? (
         <section className="grid gap-4">
+          <div className="panel p-5 sm:p-6 grid gap-2">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Dieta</p>
+            <h2 className="text-2xl font-semibold text-white">Alimentos e planejamento semanal</h2>
+          </div>
+
           <div className="panel p-4 sm:p-5 grid gap-3">
             <h3 className="text-lg font-semibold">Buscar alimentos (API)</h3>
             <input className="input-base" placeholder="Digite para buscar alimentos" value={foodQuery} onChange={(e) => setFoodQuery(e.target.value)} />
@@ -422,11 +499,21 @@ export default function App() {
               </div>
             ))}
           </div>
+
+          <div className="panel p-4 sm:p-5 grid gap-2 text-sm text-slate-300">
+            <h3 className="text-lg font-semibold">Totais de hoje ({todayDayKey})</h3>
+            <p>{Math.round(todayDietTotals.calories)} kcal</p>
+            <p>Proteina: {Math.round(todayDietTotals.protein)} g • Carbo: {Math.round(todayDietTotals.carbs)} g • Gordura: {Math.round(todayDietTotals.fat)} g</p>
+          </div>
         </section>
       ) : null}
 
       {activeScreen === "peso" ? (
         <section className="grid gap-4">
+          <div className="panel p-5 sm:p-6 grid gap-2">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Peso corporal</p>
+            <h2 className="text-2xl font-semibold text-white">Registro e historico</h2>
+          </div>
           <div className="panel px-4 py-4 sm:px-5">
             <div className="grid gap-4 sm:max-w-md">
               <label className="grid gap-2 text-sm text-slate-300">

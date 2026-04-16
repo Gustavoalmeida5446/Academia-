@@ -18,7 +18,8 @@ export function WorkoutSection({
   onAddExercise,
   onUpdateExercise,
   onDeleteExercise,
-  onReorderExercise
+  onReorderExercise,
+  shouldOpenWorkoutName = ""
 }) {
   const [newWorkoutName, setNewWorkoutName] = useState("");
   const [editingWorkoutName, setEditingWorkoutName] = useState("");
@@ -64,6 +65,7 @@ export function WorkoutSection({
                 )
               }
               onSaveWeight={onSaveWeight}
+              shouldOpen={shouldOpenWorkoutName === workoutName}
               onRenameWorkout={onRenameWorkout}
               onReorderExercise={onReorderExercise}
               onUpdateExercise={onUpdateExercise}

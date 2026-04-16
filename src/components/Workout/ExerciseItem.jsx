@@ -17,7 +17,11 @@ function ExerciseItemComponent({
   }, [exerciseState.usedWeight]);
 
   return (
-    <div className="grid gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4">
+    <div className={`grid gap-3 rounded-2xl border px-4 py-4 ${
+      exerciseState.checked
+        ? "border-emerald-300/25 bg-emerald-300/[0.08]"
+        : "border-white/10 bg-white/[0.03]"
+    }`}>
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-base font-semibold text-white">{exercise.name}</p>
@@ -38,7 +42,7 @@ function ExerciseItemComponent({
         </label>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-[220px_auto] sm:items-end">
+      <div className="grid gap-3 sm:grid-cols-[240px_auto] sm:items-end">
         <label className="grid gap-2 text-sm text-slate-300">
           Peso usado (kg)
           <div className="flex flex-col gap-3 sm:flex-row">
