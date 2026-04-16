@@ -13,6 +13,8 @@ function normalizeFoodSearchItem(item) {
     calories: Number(calories) || 0,
     carbs: Number(carbs) || 0,
     fat: Number(fat) || 0,
+    servingSize: 100,
+    servingUnit: "g",
     source: "api"
   };
 }

@@ -438,8 +438,16 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
     if (supabase && currentUser) {
       setSyncStatus("syncing");
       try {
-        await supabase.from("app_state").delete().eq("user_id", currentUser.id);
-        await supabase.from("daily_logs").delete().eq("user_id", currentUser.id);
+        await Promise.all([
+          supabase.from("workouts").delete().eq("user_id", currentUser.id),
+          supabase.from("exercise_state").delete().eq("user_id", currentUser.id),
+          supabase.from("workout_history").delete().eq("user_id", currentUser.id),
+          supabase.from("body_weight_entries").delete().eq("user_id", currentUser.id),
+          supabase.from("foods").delete().eq("user_id", currentUser.id),
+          supabase.from("diet_meals").delete().eq("user_id", currentUser.id),
+          supabase.from("plan_parameters").delete().eq("user_id", currentUser.id),
+          supabase.from("daily_logs").delete().eq("user_id", currentUser.id)
+        ]);
         setSyncStatus("cloud");
       } catch {
         setSyncStatus("error");
@@ -522,6 +530,8 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
       calories: Number(food.calories) || 0,
       carbs: Number(food.carbs) || 0,
       fat: Number(food.fat) || 0,
+      servingSize: Number(food.servingSize) || 100,
+      servingUnit: food.servingUnit || "g",
       source: food.source || "manual"
     };
 
@@ -538,7 +548,9 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
             protein: Number(updates.protein ?? item.protein) || 0,
             calories: Number(updates.calories ?? item.calories) || 0,
             carbs: Number(updates.carbs ?? item.carbs) || 0,
-            fat: Number(updates.fat ?? item.fat) || 0
+            fat: Number(updates.fat ?? item.fat) || 0,
+            servingSize: Number(updates.servingSize ?? item.servingSize) || 100,
+            servingUnit: updates.servingUnit ?? item.servingUnit ?? "g"
           }
         : item
     );

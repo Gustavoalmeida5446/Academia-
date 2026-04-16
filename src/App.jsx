@@ -262,7 +262,9 @@ export default function App() {
             ) : (
               <p className="mt-2 text-sm text-slate-400">Nenhuma refeicao planejada para hoje.</p>
             )}
-            <p className="mt-3 text-sm text-slate-300">Total: {Math.round(todayDietTotals.calories)} kcal • {Math.round(todayDietTotals.protein)}g P</p>
+            <p className="mt-3 text-sm text-slate-300">
+              Total: {Math.round(todayDietTotals.calories)} kcal • {Math.round(todayDietTotals.protein)}g P • {Math.round(todayDietTotals.carbs)}g C • {Math.round(todayDietTotals.fat)}g G
+            </p>
           </div>
         </section>
       ) : null}
@@ -317,15 +319,35 @@ export default function App() {
           <div className="panel p-4 sm:p-5 grid gap-3">
             <h3 className="text-lg font-semibold">Parametros do plano</h3>
             <div className="grid gap-3 sm:grid-cols-2">
+              <label className="text-sm">Sexo
+                <select className="input-base mt-1" value={state.planParameters.sex} onChange={(e) => updatePlanParameters({ sex: e.target.value })}>
+                  <option value="male">Masculino</option>
+                  <option value="female">Feminino</option>
+                </select>
+              </label>
               <label className="text-sm">Idade<input className="input-base mt-1" type="number" value={state.planParameters.age} onChange={(e) => updatePlanParameters({ age: Number(e.target.value) || 0 })} /></label>
               <label className="text-sm">Altura (cm)<input className="input-base mt-1" type="number" value={state.planParameters.heightCm} onChange={(e) => updatePlanParameters({ heightCm: Number(e.target.value) || 0 })} /></label>
+              <label className="text-sm">Peso de referencia (kg)<input className="input-base mt-1" type="number" step="0.1" value={state.planParameters.weightKg} onChange={(e) => updatePlanParameters({ weightKg: Number(e.target.value) || 0 })} /></label>
               <label className="text-sm">Fator de atividade<input className="input-base mt-1" type="number" step="0.05" value={state.planParameters.activityFactor} onChange={(e) => updatePlanParameters({ activityFactor: Number(e.target.value) || 1 })} /></label>
-              <label className="text-sm">Ajuste calorico<input className="input-base mt-1" type="number" value={state.planParameters.adjustmentCalories} onChange={(e) => updatePlanParameters({ adjustmentCalories: Number(e.target.value) || 0 })} /></label>
+              <label className="text-sm">Deficit (%)<input className="input-base mt-1" type="number" value={state.planParameters.deficitPercent} onChange={(e) => updatePlanParameters({ deficitPercent: Number(e.target.value) || 0 })} /></label>
+              <label className="text-sm">Proteina alvo (g)<input className="input-base mt-1" type="number" value={state.planParameters.proteinTargetG} onChange={(e) => updatePlanParameters({ proteinTargetG: Number(e.target.value) || 0 })} /></label>
+              <label className="text-sm">Carbo alvo (g)<input className="input-base mt-1" type="number" value={state.planParameters.carbsTargetG} onChange={(e) => updatePlanParameters({ carbsTargetG: Number(e.target.value) || 0 })} /></label>
+            </div>
+          </div>
+
+          <div className="panel p-4 sm:p-5 grid gap-3">
+            <h4 className="font-semibold">Rotina diaria</h4>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="text-sm">Acordar<input className="input-base mt-1" type="time" value={state.planParameters.wakeTime || ""} onChange={(e) => updatePlanParameters({ wakeTime: e.target.value })} /></label>
+              <label className="text-sm">Treino/Caminhada<input className="input-base mt-1" type="time" value={state.planParameters.trainingTime || ""} onChange={(e) => updatePlanParameters({ trainingTime: e.target.value })} /></label>
+              <label className="text-sm">Refeicao (OMAD)<input className="input-base mt-1" type="time" value={state.planParameters.mealTime || ""} onChange={(e) => updatePlanParameters({ mealTime: e.target.value })} /></label>
+              <label className="text-sm">Dormir<input className="input-base mt-1" type="time" value={state.planParameters.sleepTime || ""} onChange={(e) => updatePlanParameters({ sleepTime: e.target.value })} /></label>
             </div>
           </div>
 
           <div className="panel p-4 sm:p-5 text-sm grid gap-2">
-            <p>Manutencao: <b>{planTargets.maintenanceCalories} kcal</b></p>
+            <p>BMR (Mifflin-St Jeor): <b>{planTargets.bmr} kcal</b></p>
+            <p>TDEE: <b>{planTargets.tdee} kcal</b></p>
             <p>Meta calorica: <b>{planTargets.targetCalories} kcal</b></p>
             <p>Proteina: <b>{planTargets.targetProtein} g</b> • Gordura: <b>{planTargets.targetFat} g</b> • Carbo: <b>{planTargets.targetCarbs} g</b></p>
           </div>
@@ -352,16 +374,18 @@ export default function App() {
             {state.foods.map((food) => (
               <div key={food.id} className="grid gap-2 rounded-2xl border border-white/10 p-3">
                 <input className="input-base" value={food.name} onChange={(e) => updateFood(food.id, { name: e.target.value })} />
-                <div className="grid gap-2 sm:grid-cols-4">
+                <div className="grid gap-2 sm:grid-cols-6">
                   <input className="input-base" type="number" value={food.protein} onChange={(e) => updateFood(food.id, { protein: e.target.value })} placeholder="Proteina" />
                   <input className="input-base" type="number" value={food.calories} onChange={(e) => updateFood(food.id, { calories: e.target.value })} placeholder="Calorias" />
                   <input className="input-base" type="number" value={food.carbs} onChange={(e) => updateFood(food.id, { carbs: e.target.value })} placeholder="Carbo" />
                   <input className="input-base" type="number" value={food.fat} onChange={(e) => updateFood(food.id, { fat: e.target.value })} placeholder="Gordura" />
+                  <input className="input-base" type="number" value={food.servingSize || 100} onChange={(e) => updateFood(food.id, { servingSize: e.target.value })} placeholder="Base" />
+                  <input className="input-base" value={food.servingUnit || "g"} onChange={(e) => updateFood(food.id, { servingUnit: e.target.value })} placeholder="Unidade" />
                 </div>
                 <button className="btn-danger sm:w-fit" type="button" onClick={() => deleteFood(food.id)}>Excluir alimento</button>
               </div>
             ))}
-            <button className="btn-secondary sm:w-fit" type="button" onClick={() => addFood({ name: "Novo alimento", protein: 0, calories: 0, carbs: 0, fat: 0, source: "manual" })}>Adicionar manual</button>
+            <button className="btn-secondary sm:w-fit" type="button" onClick={() => addFood({ name: "Novo alimento", protein: 0, calories: 0, carbs: 0, fat: 0, servingSize: 100, servingUnit: "g", source: "manual" })}>Adicionar manual</button>
           </div>
 
           <div className="panel p-4 sm:p-5 grid gap-3">
@@ -370,13 +394,13 @@ export default function App() {
               <div key={day} className="rounded-2xl border border-white/10 p-3 grid gap-2">
                 <div className="flex items-center justify-between"><p className="font-medium capitalize">{day}</p><button className="btn-secondary" type="button" onClick={() => addDietMeal(day, { mealName: "Refeicao", foodId: state.foods[0]?.id || "", servings: 1 })}>Adicionar refeicao</button></div>
                 {(state.dietPlan?.[day] || []).map((meal) => (
-                  <div key={meal.id} className="grid gap-2 sm:grid-cols-[1fr_1fr_140px_auto]">
+                  <div key={meal.id} className="grid gap-2 sm:grid-cols-[1fr_1fr_180px_auto]">
                     <input className="input-base" value={meal.mealName} onChange={(e) => updateDietMeal(day, meal.id, { mealName: e.target.value })} />
                     <select className="input-base" value={meal.foodId} onChange={(e) => updateDietMeal(day, meal.id, { foodId: e.target.value })}>
                       <option value="">Selecione</option>
                       {state.foods.map((food) => <option key={food.id} value={food.id}>{food.name}</option>)}
                     </select>
-                    <input className="input-base" type="number" step="0.1" value={meal.servings} onChange={(e) => updateDietMeal(day, meal.id, { servings: e.target.value })} />
+                    <input className="input-base" type="number" step="0.1" value={meal.servings} onChange={(e) => updateDietMeal(day, meal.id, { servings: e.target.value })} placeholder="Qtde (base do alimento)" />
                     <button className="btn-danger" type="button" onClick={() => deleteDietMeal(day, meal.id)}>Excluir</button>
                   </div>
                 ))}

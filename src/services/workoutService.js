@@ -35,6 +35,8 @@ function normalizeFoods(items) {
       calories: Number(item?.calories) || 0,
       carbs: Number(item?.carbs) || 0,
       fat: Number(item?.fat) || 0,
+      servingSize: Number(item?.servingSize) || 100,
+      servingUnit: item?.servingUnit || "g",
       source: item?.source || "manual"
     }))
     .filter((item) => item.name);
@@ -57,6 +59,20 @@ function normalizeDietPlan(plan) {
         : []
     ])
   );
+}
+
+function normalizePlanParameters(parameters) {
+  return {
+    ...defaultPlanParameters,
+    ...(parameters || {}),
+    age: Number(parameters?.age ?? defaultPlanParameters.age) || 0,
+    heightCm: Number(parameters?.heightCm ?? defaultPlanParameters.heightCm) || 0,
+    weightKg: Number(parameters?.weightKg ?? defaultPlanParameters.weightKg) || 0,
+    activityFactor: Number(parameters?.activityFactor ?? defaultPlanParameters.activityFactor) || 1,
+    deficitPercent: Number(parameters?.deficitPercent ?? defaultPlanParameters.deficitPercent) || 0,
+    proteinTargetG: Number(parameters?.proteinTargetG ?? defaultPlanParameters.proteinTargetG) || 0,
+    carbsTargetG: Number(parameters?.carbsTargetG ?? defaultPlanParameters.carbsTargetG) || 0
+  };
 }
 
 export function normalizeWorkouts(workouts) {
@@ -111,7 +127,7 @@ export function createDefaultState() {
 
   return {
     recordDate: todayString(),
-    bodyWeight: "",
+    bodyWeight: defaultPlanParameters.weightKg,
     bodyWeightDate: "",
     bodyWeightHistory: [],
     lastUpdate: "",
@@ -119,7 +135,7 @@ export function createDefaultState() {
     exercises: createDefaultExerciseState(workouts),
     history: [],
     dailyStatus: {},
-    planParameters: { ...defaultPlanParameters },
+    planParameters: normalizePlanParameters(defaultPlanParameters),
     foods: normalizeFoods(defaultFoods),
     dietPlan: normalizeDietPlan(defaultDietPlan)
   };
@@ -140,12 +156,10 @@ export function mergeState(saved) {
       ...exerciseBase,
       ...(safeSaved.exercises || {})
     },
+    bodyWeight: Number(safeSaved.bodyWeight ?? base.bodyWeight) || "",
     bodyWeightHistory: normalizeBodyWeightHistory(safeSaved.bodyWeightHistory),
     history: normalizeHistoryEntries(safeSaved.history),
-    planParameters: {
-      ...base.planParameters,
-      ...(safeSaved.planParameters || {})
-    },
+    planParameters: normalizePlanParameters(safeSaved.planParameters),
     foods: normalizeFoods(safeSaved.foods || base.foods),
     dietPlan: normalizeDietPlan(safeSaved.dietPlan || base.dietPlan),
     dailyStatus: safeSaved.dailyStatus || {}

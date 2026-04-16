@@ -1,4 +1,3 @@
-import { fallbackExercises } from "../data/fallbackExercises";
 import {
   normalizeExercise,
   normalizeExerciseName,
@@ -28,12 +27,6 @@ export function getCustomExerciseSuggestions(workouts) {
   });
 
   return suggestions;
-}
-
-export function getFallbackExerciseSuggestions() {
-  return fallbackExercises.map((exercise) =>
-    normalizeExerciseSuggestion(exercise, "fallback")
-  );
 }
 
 export function filterExerciseSuggestions(suggestions, query) {

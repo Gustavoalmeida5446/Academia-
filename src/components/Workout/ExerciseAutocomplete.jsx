@@ -3,13 +3,11 @@ import {
   fetchApiExerciseSuggestions,
   filterExerciseSuggestions,
   getCustomExerciseSuggestions,
-  getFallbackExerciseSuggestions,
   mergeExerciseSuggestions
 } from "../../services/exerciseService";
 
 const sourceLabels = {
   custom: "Seu treino",
-  fallback: "Base local",
   api: "API"
 };
 
@@ -27,7 +25,6 @@ export function ExerciseAutocomplete({
     () => getCustomExerciseSuggestions(workouts),
     [workouts]
   );
-  const fallbackSuggestions = useMemo(() => getFallbackExerciseSuggestions(), []);
 
   useEffect(() => {
     let active = true;
@@ -56,12 +53,11 @@ export function ExerciseAutocomplete({
   const suggestions = useMemo(() => {
     const merged = mergeExerciseSuggestions(
       customSuggestions,
-      fallbackSuggestions,
       apiSuggestions
     );
 
     return filterExerciseSuggestions(merged, value);
-  }, [apiSuggestions, customSuggestions, fallbackSuggestions, value]);
+  }, [apiSuggestions, customSuggestions, value]);
 
   return (
     <div className="grid gap-2">
