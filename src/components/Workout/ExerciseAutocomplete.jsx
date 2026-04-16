@@ -20,6 +20,7 @@ export function ExerciseAutocomplete({
 }) {
   const [apiSuggestions, setApiSuggestions] = useState([]);
   const [loadingApi, setLoadingApi] = useState(false);
+  const [apiAttempted, setApiAttempted] = useState(false);
 
   const customSuggestions = useMemo(
     () => getCustomExerciseSuggestions(workouts),
@@ -32,10 +33,12 @@ export function ExerciseAutocomplete({
     if (!value || value.trim().length < 2) {
       setApiSuggestions([]);
       setLoadingApi(false);
+      setApiAttempted(false);
       return undefined;
     }
 
     setLoadingApi(true);
+    setApiAttempted(true);
 
     const timeoutId = window.setTimeout(async () => {
       const results = await fetchApiExerciseSuggestions(value);
@@ -81,6 +84,12 @@ export function ExerciseAutocomplete({
               {loadingApi ? "Buscando API..." : "Entrada manual sempre liberada"}
             </p>
           </div>
+
+          {apiAttempted && !loadingApi && !apiSuggestions.length ? (
+            <p className="mb-3 text-xs text-amber-300">
+              API sem resposta no momento. Sugestoes locais e cadastro manual continuam disponiveis.
+            </p>
+          ) : null}
 
           {suggestions.length ? (
             <div className="flex flex-wrap gap-2">
