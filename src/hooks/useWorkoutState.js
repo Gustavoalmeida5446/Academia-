@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { buildHistoryEntry, normalizeHistoryEntries } from "../services/historyService";
 import {
   loadStateFromSupabase,
+  saveDailyStatusToSupabase,
   syncAllStateToSupabase,
   syncExerciseToSupabase,
   syncHistoryEntryToSupabase
@@ -65,6 +66,13 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
       active = false;
     };
   }, [supabase, currentUser, showFeedback]);
+
+  function replaceState(nextState) {
+    setState({
+      ...nextState,
+      lastUpdate: new Date().toISOString()
+    });
+  }
 
   function updateExercise(exerciseKey, updates) {
     const updatedAt = new Date().toISOString();
@@ -194,11 +202,7 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
     if (supabase && currentUser) {
       setSyncStatus("syncing");
       try {
-        await syncAllStateToSupabase({
-          supabase,
-          currentUser,
-          state: nextState
-        });
+        await syncAllStateToSupabase({ supabase, currentUser, state: nextState });
         setSyncStatus("cloud");
       } catch {
         setSyncStatus("error");
@@ -217,35 +221,29 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
       tone: "danger"
     });
 
-    if (!confirmed) {
-      return;
-    }
+    if (!confirmed) return;
 
     const nextBodyWeightHistory = (state.bodyWeightHistory || []).filter((item) => item.id !== entryId);
     const latestEntry = nextBodyWeightHistory[0];
 
-    setState((current) => ({
-      ...current,
+    const nextState = {
+      ...state,
       bodyWeightHistory: nextBodyWeightHistory,
       bodyWeight: latestEntry?.weight ?? "",
       bodyWeightDate: latestEntry?.date ?? "",
       lastUpdate: new Date().toISOString()
-    }));
+    };
 
+    setState(nextState);
+    await syncAllStateToSupabase({ supabase, currentUser, state: nextState });
     showFeedback("Registro de peso removido.", "success");
   }
 
   async function completeWorkout(workoutName) {
     const eligibleWorkouts = state.workouts
       .filter((workout) => {
-        if (workoutName && workout.name !== workoutName) {
-          return false;
-        }
-
-        if (!workout.exercises.length) {
-          return false;
-        }
-
+        if (workoutName && workout.name !== workoutName) return false;
+        if (!workout.exercises.length) return false;
         return workout.exercises.every((exercise) => {
           const exerciseKey = makeExerciseKey(workout.name, exercise.name);
           return state.exercises[exerciseKey]?.checked;
@@ -287,7 +285,14 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
       ...state,
       exercises: nextExercises,
       lastUpdate: completedAt,
-      history: normalizeHistoryEntries([...(state.history || []), ...entries])
+      history: normalizeHistoryEntries([...(state.history || []), ...entries]),
+      dailyStatus: {
+        ...(state.dailyStatus || {}),
+        [state.recordDate]: {
+          ...(state.dailyStatus?.[state.recordDate] || {}),
+          workoutDone: true
+        }
+      }
     };
 
     setState(nextState);
@@ -295,9 +300,13 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
     if (supabase && currentUser) {
       setSyncStatus("syncing");
       try {
-        for (const entry of entries) {
-          await syncHistoryEntryToSupabase({ supabase, currentUser, entry });
-        }
+        await syncHistoryEntryToSupabase({ supabase, currentUser, state: nextState });
+        await saveDailyStatusToSupabase({
+          supabase,
+          currentUser,
+          recordDate: state.recordDate,
+          status: nextState.dailyStatus[state.recordDate]
+        });
         setSyncStatus("cloud");
       } catch {
         setSyncStatus("error");
@@ -306,6 +315,33 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
 
     showFeedback("Treino concluido e checks limpos.", "success");
     setBusyAction("");
+  }
+
+  async function updateDailyStatus(partial) {
+    const nextStatus = {
+      ...(state.dailyStatus?.[state.recordDate] || {}),
+      ...partial
+    };
+
+    const nextState = {
+      ...state,
+      dailyStatus: {
+        ...(state.dailyStatus || {}),
+        [state.recordDate]: nextStatus
+      }
+    };
+
+    setState(nextState);
+
+    if (supabase && currentUser) {
+      await saveDailyStatusToSupabase({
+        supabase,
+        currentUser,
+        recordDate: state.recordDate,
+        status: nextStatus
+      });
+      await syncAllStateToSupabase({ supabase, currentUser, state: nextState });
+    }
   }
 
   async function saveSync() {
@@ -318,16 +354,7 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
     setSyncStatus("syncing");
 
     try {
-      await syncAllStateToSupabase({
-        supabase,
-        currentUser,
-        state,
-        includeEmpty: true
-      });
-
-      for (const entry of state.history) {
-        await syncHistoryEntryToSupabase({ supabase, currentUser, entry });
-      }
+      await syncAllStateToSupabase({ supabase, currentUser, state });
       setSyncStatus("cloud");
       showFeedback("Dados salvos no Supabase.", "success");
     } catch {
@@ -348,12 +375,7 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
     setSyncStatus("syncing");
 
     try {
-      const freshState = await loadStateFromSupabase({
-        supabase,
-        currentUser,
-        currentState: state
-      });
-
+      const freshState = await loadStateFromSupabase({ supabase, currentUser, currentState: state });
       setState(freshState);
       setSyncStatus("cloud");
       showFeedback("Dados atualizados do Supabase.", "success");
@@ -372,9 +394,7 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
       confirmLabel: "Desmarcar tudo"
     });
 
-    if (!confirmed) {
-      return;
-    }
+    if (!confirmed) return;
 
     const updatedAt = new Date().toISOString();
     const nextExercises = Object.fromEntries(
@@ -388,23 +408,13 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
       ])
     );
 
-    const nextState = {
-      ...state,
-      exercises: nextExercises,
-      lastUpdate: updatedAt
-    };
-
+    const nextState = { ...state, exercises: nextExercises, lastUpdate: updatedAt };
     setState(nextState);
 
     if (supabase && currentUser) {
       setSyncStatus("syncing");
       try {
-        await syncAllStateToSupabase({
-          supabase,
-          currentUser,
-          state: nextState,
-          includeEmpty: true
-        });
+        await syncAllStateToSupabase({ supabase, currentUser, state: nextState });
         setSyncStatus("cloud");
       } catch {
         setSyncStatus("error");
@@ -420,9 +430,7 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
       tone: "danger"
     });
 
-    if (!confirmed) {
-      return;
-    }
+    if (!confirmed) return;
 
     const nextState = createDefaultState();
     setState(nextState);
@@ -430,7 +438,16 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
     if (supabase && currentUser) {
       setSyncStatus("syncing");
       try {
-        await supabase.from("workout_logs").delete().eq("user_id", currentUser.id);
+        await Promise.all([
+          supabase.from("workouts").delete().eq("user_id", currentUser.id),
+          supabase.from("exercise_state").delete().eq("user_id", currentUser.id),
+          supabase.from("workout_history").delete().eq("user_id", currentUser.id),
+          supabase.from("body_weight_entries").delete().eq("user_id", currentUser.id),
+          supabase.from("foods").delete().eq("user_id", currentUser.id),
+          supabase.from("diet_meals").delete().eq("user_id", currentUser.id),
+          supabase.from("plan_parameters").delete().eq("user_id", currentUser.id),
+          supabase.from("daily_logs").delete().eq("user_id", currentUser.id)
+        ]);
         setSyncStatus("cloud");
       } catch {
         setSyncStatus("error");
@@ -448,16 +465,11 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
       tone: "danger"
     });
 
-    if (!confirmed) {
-      return;
-    }
+    if (!confirmed) return;
 
-    setState((current) => ({
-      ...current,
-      history: [],
-      lastUpdate: new Date().toISOString()
-    }));
-
+    const nextState = { ...state, history: [], lastUpdate: new Date().toISOString() };
+    setState(nextState);
+    await syncAllStateToSupabase({ supabase, currentUser, state: nextState });
     showFeedback("Historico limpo.", "success");
   }
 
@@ -479,15 +491,7 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
       setState(nextState);
 
       if (supabase && currentUser) {
-        await syncAllStateToSupabase({
-          supabase,
-          currentUser,
-          state: nextState
-        });
-
-        for (const entry of nextState.history) {
-          await syncHistoryEntryToSupabase({ supabase, currentUser, entry });
-        }
+        await syncAllStateToSupabase({ supabase, currentUser, state: nextState });
       }
 
       showFeedback("Backup importado com sucesso.", "success");
@@ -504,28 +508,119 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
   }
 
   function changeRecordDate(recordDate) {
-    setState((current) => ({
-      ...current,
-      recordDate: recordDate || current.recordDate
-    }));
+    setState((current) => ({ ...current, recordDate: recordDate || current.recordDate }));
+  }
+
+  function updatePlanParameters(updates) {
+    replaceState({
+      ...state,
+      planParameters: {
+        ...state.planParameters,
+        ...updates
+      }
+    });
+  }
+
+  function addFood(food) {
+    const nextFood = {
+      id: food.id || crypto.randomUUID(),
+      externalId: food.externalId || "",
+      name: food.name,
+      protein: Number(food.protein) || 0,
+      calories: Number(food.calories) || 0,
+      carbs: Number(food.carbs) || 0,
+      fat: Number(food.fat) || 0,
+      servingSize: Number(food.servingSize) || 100,
+      servingUnit: food.servingUnit || "g",
+      source: food.source || "manual"
+    };
+
+    const nextFoods = [nextFood, ...state.foods.filter((item) => item.id !== nextFood.id)];
+    replaceState({ ...state, foods: nextFoods });
+  }
+
+  function updateFood(foodId, updates) {
+    const nextFoods = state.foods.map((item) =>
+      item.id === foodId
+        ? {
+            ...item,
+            ...updates,
+            protein: Number(updates.protein ?? item.protein) || 0,
+            calories: Number(updates.calories ?? item.calories) || 0,
+            carbs: Number(updates.carbs ?? item.carbs) || 0,
+            fat: Number(updates.fat ?? item.fat) || 0,
+            servingSize: Number(updates.servingSize ?? item.servingSize) || 100,
+            servingUnit: updates.servingUnit ?? item.servingUnit ?? "g"
+          }
+        : item
+    );
+    replaceState({ ...state, foods: nextFoods });
+  }
+
+  function deleteFood(foodId) {
+    const nextFoods = state.foods.filter((item) => item.id !== foodId);
+    const nextDietPlan = Object.fromEntries(
+      Object.entries(state.dietPlan || {}).map(([day, meals]) => [
+        day,
+        meals.filter((meal) => meal.foodId !== foodId)
+      ])
+    );
+    replaceState({ ...state, foods: nextFoods, dietPlan: nextDietPlan });
+  }
+
+  function addDietMeal(dayKey, meal) {
+    const nextMeal = {
+      id: crypto.randomUUID(),
+      mealName: meal.mealName || "Refeicao",
+      foodId: meal.foodId,
+      servings: Number(meal.servings) || 1
+    };
+
+    replaceState({
+      ...state,
+      dietPlan: {
+        ...state.dietPlan,
+        [dayKey]: [...(state.dietPlan?.[dayKey] || []), nextMeal]
+      }
+    });
+  }
+
+  function updateDietMeal(dayKey, mealId, updates) {
+    replaceState({
+      ...state,
+      dietPlan: {
+        ...state.dietPlan,
+        [dayKey]: (state.dietPlan?.[dayKey] || []).map((item) =>
+          item.id === mealId
+            ? {
+                ...item,
+                ...updates,
+                servings: Number(updates.servings ?? item.servings) || 1
+              }
+            : item
+        )
+      }
+    });
+  }
+
+  function deleteDietMeal(dayKey, mealId) {
+    replaceState({
+      ...state,
+      dietPlan: {
+        ...state.dietPlan,
+        [dayKey]: (state.dietPlan?.[dayKey] || []).filter((item) => item.id !== mealId)
+      }
+    });
   }
 
   function createWorkout(workoutName) {
     const trimmedName = workoutName.trim();
-
-    if (!trimmedName) {
-      showFeedback("Digite um nome para o treino.", "error");
-      return;
-    }
+    if (!trimmedName) return showFeedback("Digite um nome para o treino.", "error");
 
     const alreadyExists = state.workouts.some(
       (workout) => workout.name.toLowerCase() === trimmedName.toLowerCase()
     );
-
-    if (alreadyExists) {
-      showFeedback("Ja existe um treino com esse nome.", "error");
-      return;
-    }
+    if (alreadyExists) return showFeedback("Ja existe um treino com esse nome.", "error");
 
     const workouts = [...state.workouts, { name: trimmedName, exercises: [] }];
     const nextExercises = rebuildExerciseState(workouts, state.exercises);
@@ -536,21 +631,13 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
 
   function renameWorkout(currentName, nextName) {
     const trimmedName = nextName.trim();
-
-    if (!trimmedName) {
-      showFeedback("O nome do treino nao pode ficar vazio.", "error");
-      return;
-    }
+    if (!trimmedName) return showFeedback("O nome do treino nao pode ficar vazio.", "error");
 
     const duplicateWorkout = state.workouts.some(
       (workout) =>
         workout.name !== currentName && workout.name.toLowerCase() === trimmedName.toLowerCase()
     );
-
-    if (duplicateWorkout) {
-      showFeedback("Ja existe outro treino com esse nome.", "error");
-      return;
-    }
+    if (duplicateWorkout) return showFeedback("Ja existe outro treino com esse nome.", "error");
 
     const workouts = state.workouts.map((workout) =>
       workout.name === currentName ? { ...workout, name: trimmedName } : workout
@@ -560,14 +647,10 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
     Object.entries(state.exercises).forEach(([key, item]) => {
       if (item.workout === currentName) {
         const nextKey = makeExerciseKey(trimmedName, item.exercise);
-        nextExercises[nextKey] = {
-          ...item,
-          workout: trimmedName
-        };
-        return;
+        nextExercises[nextKey] = { ...item, workout: trimmedName };
+      } else {
+        nextExercises[key] = item;
       }
-
-      nextExercises[key] = item;
     });
 
     const nextHistory = (state.history || []).map((entry) =>
@@ -586,9 +669,7 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
       tone: "danger"
     });
 
-    if (!confirmed) {
-      return;
-    }
+    if (!confirmed) return;
 
     const workouts = state.workouts.filter((workout) => workout.name !== workoutName);
     const nextExercises = Object.fromEntries(
@@ -602,20 +683,13 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
 
   function addExercise(workoutName, exerciseData) {
     const trimmedName = exerciseData.name.trim();
-
-    if (!trimmedName) {
-      showFeedback("Digite um nome para o exercicio.", "error");
-      return;
-    }
+    if (!trimmedName) return showFeedback("Digite um nome para o exercicio.", "error");
 
     const duplicateExercise = state.workouts
       .find((workout) => workout.name === workoutName)
       ?.exercises.some((exercise) => exercise.name.toLowerCase() === trimmedName.toLowerCase());
 
-    if (duplicateExercise) {
-      showFeedback("Esse exercicio ja existe nesse treino.", "error");
-      return;
-    }
+    if (duplicateExercise) return showFeedback("Esse exercicio ja existe nesse treino.", "error");
 
     const workouts = state.workouts.map((workout) => {
       if (workout.name !== workoutName) return workout;
@@ -628,7 +702,10 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
             name: trimmedName,
             sets: exerciseData.sets.trim() || "3",
             reps: exerciseData.reps.trim() || "10-12",
-            videoQuery: trimmedName
+            videoQuery: trimmedName,
+            muscleGroup: exerciseData.muscleGroup || "",
+            mediaUrl: exerciseData.mediaUrl || "",
+            externalId: exerciseData.externalId || ""
           }
         ]
       };
@@ -641,11 +718,7 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
 
   function updateExerciseDefinition(workoutName, currentExerciseName, updates) {
     const trimmedName = updates.name.trim();
-
-    if (!trimmedName) {
-      showFeedback("O nome do exercicio nao pode ficar vazio.", "error");
-      return;
-    }
+    if (!trimmedName) return showFeedback("O nome do exercicio nao pode ficar vazio.", "error");
 
     const duplicateExercise = state.workouts
       .find((workout) => workout.name === workoutName)
@@ -656,8 +729,7 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
       );
 
     if (duplicateExercise) {
-      showFeedback("Ja existe outro exercicio com esse nome nesse treino.", "error");
-      return;
+      return showFeedback("Ja existe outro exercicio com esse nome nesse treino.", "error");
     }
 
     const workouts = state.workouts.map((workout) => {
@@ -668,10 +740,14 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
         exercises: workout.exercises.map((exercise) =>
           exercise.name === currentExerciseName
             ? {
+                ...exercise,
                 name: trimmedName,
                 sets: updates.sets.trim(),
                 reps: updates.reps.trim(),
-                videoQuery: trimmedName
+                videoQuery: trimmedName,
+                muscleGroup: updates.muscleGroup || exercise.muscleGroup || "",
+                mediaUrl: updates.mediaUrl || exercise.mediaUrl || "",
+                externalId: updates.externalId || exercise.externalId || ""
               }
             : exercise
         )
@@ -692,7 +768,6 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
 
     const nextHistory = (state.history || []).map((entry) => {
       if (entry.workout !== workoutName) return entry;
-
       return {
         ...entry,
         exercises: entry.exercises.map((exercise) =>
@@ -715,13 +790,10 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
       tone: "danger"
     });
 
-    if (!confirmed) {
-      return;
-    }
+    if (!confirmed) return;
 
     const workouts = state.workouts.map((workout) => {
       if (workout.name !== workoutName) return workout;
-
       return {
         ...workout,
         exercises: workout.exercises.filter((exercise) => exercise.name !== exerciseName)
@@ -735,7 +807,6 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
     const nextHistory = (state.history || [])
       .map((entry) => {
         if (entry.workout !== workoutName) return entry;
-
         return {
           ...entry,
           exercises: entry.exercises.filter((exercise) => exercise.exercise !== exerciseName)
@@ -750,7 +821,6 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
   function reorderExercise(workoutName, exerciseName, direction) {
     const workout = state.workouts.find((item) => item.name === workoutName);
     const currentIndex = workout?.exercises.findIndex((item) => item.name === exerciseName) ?? -1;
-
     if (currentIndex < 0) return;
 
     const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
@@ -768,7 +838,6 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
     workouts: state.workouts,
     workoutMap,
     state,
-    setState,
     onlyPendingMode,
     setOnlyPendingMode,
     syncStatus,
@@ -778,6 +847,7 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
     saveBodyWeight,
     deleteBodyWeightEntry,
     completeWorkout,
+    updateDailyStatus,
     saveSync,
     refreshSync,
     clearHistory,
@@ -792,6 +862,13 @@ export function useWorkoutState({ supabase, currentUser, showFeedback }) {
     addExercise,
     updateExerciseDefinition,
     deleteExercise,
-    reorderExercise
+    reorderExercise,
+    updatePlanParameters,
+    addFood,
+    updateFood,
+    deleteFood,
+    addDietMeal,
+    updateDietMeal,
+    deleteDietMeal
   };
 }

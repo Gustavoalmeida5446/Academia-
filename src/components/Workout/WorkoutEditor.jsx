@@ -5,7 +5,10 @@ import { ExerciseEditor } from "./ExerciseEditor";
 const emptyExerciseForm = {
   name: "",
   sets: "3",
-  reps: "10-12"
+  reps: "10-12",
+  muscleGroup: "",
+  mediaUrl: "",
+  externalId: ""
 };
 
 export function WorkoutEditor({
@@ -41,7 +44,10 @@ export function WorkoutEditor({
       ...current,
       name: suggestion.name,
       sets: current.sets || suggestion.sets || "3",
-      reps: current.reps || suggestion.reps || "10-12"
+      reps: current.reps || suggestion.reps || "10-12",
+      muscleGroup: suggestion.muscleGroup || "",
+      mediaUrl: suggestion.mediaUrl || "",
+      externalId: suggestion.externalId || ""
     }));
   }
 

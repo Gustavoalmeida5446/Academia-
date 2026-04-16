@@ -3,13 +3,11 @@ import {
   fetchApiExerciseSuggestions,
   filterExerciseSuggestions,
   getCustomExerciseSuggestions,
-  getFallbackExerciseSuggestions,
   mergeExerciseSuggestions
 } from "../../services/exerciseService";
 
 const sourceLabels = {
   custom: "Seu treino",
-  fallback: "Base local",
   api: "API"
 };
 
@@ -27,7 +25,6 @@ export function ExerciseAutocomplete({
     () => getCustomExerciseSuggestions(workouts),
     [workouts]
   );
-  const fallbackSuggestions = useMemo(() => getFallbackExerciseSuggestions(), []);
 
   useEffect(() => {
     let active = true;
@@ -56,12 +53,11 @@ export function ExerciseAutocomplete({
   const suggestions = useMemo(() => {
     const merged = mergeExerciseSuggestions(
       customSuggestions,
-      fallbackSuggestions,
       apiSuggestions
     );
 
     return filterExerciseSuggestions(merged, value);
-  }, [apiSuggestions, customSuggestions, fallbackSuggestions, value]);
+  }, [apiSuggestions, customSuggestions, value]);
 
   return (
     <div className="grid gap-2">
@@ -97,8 +93,7 @@ export function ExerciseAutocomplete({
                 >
                   <span className="block font-medium text-white">{suggestion.name}</span>
                   <span className="mt-1 block text-xs text-slate-400">
-                    {sourceLabels[suggestion.source]} • {suggestion.sets || "3"} series •{" "}
-                    {suggestion.reps || "10-12"} reps
+                    {sourceLabels[suggestion.source]} • {suggestion.muscleGroup || "Grupo geral"} • {suggestion.sets || "3"}x{suggestion.reps || "10-12"}
                   </span>
                 </button>
               ))}

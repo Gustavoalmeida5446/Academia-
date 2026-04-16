@@ -1,4 +1,3 @@
-import { fallbackExercises } from "../data/fallbackExercises";
 import {
   normalizeExercise,
   normalizeExerciseName,
@@ -28,12 +27,6 @@ export function getCustomExerciseSuggestions(workouts) {
   });
 
   return suggestions;
-}
-
-export function getFallbackExerciseSuggestions() {
-  return fallbackExercises.map((exercise) =>
-    normalizeExerciseSuggestion(exercise, "fallback")
-  );
 }
 
 export function filterExerciseSuggestions(suggestions, query) {
@@ -88,17 +81,21 @@ export async function fetchApiExerciseSuggestions(query) {
     const data = await response.json();
     const results = Array.isArray(data?.results) ? data.results : [];
 
-    return results.map((item) =>
-      normalizeExerciseSuggestion(
+    return results.map((item) => {
+      const image = Array.isArray(item.images) ? item.images.find((img) => img.image) : null;
+      return normalizeExerciseSuggestion(
         {
           name: item.name,
           sets: "3",
           reps: "10-12",
-          videoQuery: item.name
+          videoQuery: item.name,
+          muscleGroup: item.category?.name || "",
+          mediaUrl: image?.image || "",
+          externalId: String(item.id || "")
         },
         "api"
-      )
-    );
+      );
+    });
   } catch {
     return [];
   }
