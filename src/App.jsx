@@ -35,6 +35,47 @@ function getWeekDayKey(dateString) {
   return map[date.getDay()];
 }
 
+function getLastCompletedWorkout(history = []) {
+  const validEntries = (history || []).filter((item) => item.workout);
+  if (!validEntries.length) return null;
+
+  return [...validEntries].sort((a, b) => {
+    const aTime = new Date(a.completedAt || `${a.recordDate}T12:00:00`).getTime();
+    const bTime = new Date(b.completedAt || `${b.recordDate}T12:00:00`).getTime();
+    return bTime - aTime;
+  })[0];
+}
+
+function getWorkoutSequence(workouts = []) {
+  const defaultSequence = ["Treino A", "Treino B", "Treino C"];
+  const byNormalizedName = Object.fromEntries(
+    workouts.map((workout) => [workout.name.trim().toLowerCase(), workout])
+  );
+
+  const orderedBySequence = defaultSequence
+    .map((name) => byNormalizedName[name.toLowerCase()])
+    .filter(Boolean);
+
+  if (orderedBySequence.length === defaultSequence.length) {
+    return orderedBySequence;
+  }
+
+  return workouts;
+}
+
+function getNextWorkout(workouts = [], history = []) {
+  if (!workouts.length) return null;
+
+  const sequence = getWorkoutSequence(workouts);
+  const lastCompleted = getLastCompletedWorkout(history);
+  if (!lastCompleted) return sequence[0];
+
+  const currentIndex = sequence.findIndex((workout) => workout.name === lastCompleted.workout);
+  if (currentIndex < 0) return sequence[0];
+
+  return sequence[(currentIndex + 1) % sequence.length];
+}
+
 export default function App() {
   const { feedback, confirmState, showFeedback, clearFeedback, requestConfirm, closeConfirm } = useFeedback();
   const { currentUser, setCurrentUser, authReady } = useAuth(supabase);
@@ -48,6 +89,7 @@ export default function App() {
   const [foodQuery, setFoodQuery] = useState("");
   const [foodResults, setFoodResults] = useState([]);
   const [foodLoading, setFoodLoading] = useState(false);
+  const [focusedWorkoutName, setFocusedWorkoutName] = useState("");
 
   const {
     workouts,
@@ -103,6 +145,8 @@ export default function App() {
     [state.bodyWeight, state.planParameters]
   );
   const todayStatus = state.dailyStatus?.[state.recordDate] || { workoutDone: false, dietDone: false };
+  const lastCompletedWorkout = useMemo(() => getLastCompletedWorkout(state.history || []), [state.history]);
+  const nextWorkout = useMemo(() => getNextWorkout(workouts, state.history || []), [workouts, state.history]);
 
   useEffect(() => {
     if (activeScreen === "peso" || activeScreen === "parametros") {
@@ -210,7 +254,21 @@ export default function App() {
   function handleNavigate(nextScreen) {
     setActiveScreen(nextScreen);
     setMenuOpen(false);
-    if (nextScreen === "treinos") setOnlyPendingMode(false);
+    if (nextScreen === "treinos") {
+      setOnlyPendingMode(false);
+      return;
+    }
+
+    setFocusedWorkoutName("");
+  }
+
+  function handleOpenNextWorkout() {
+    if (!nextWorkout) return;
+    setFocusedWorkoutName(nextWorkout.name);
+    setOnlyPendingMode(false);
+    setExpandMode("none");
+    setActiveScreen("treinos");
+    setMenuOpen(false);
   }
 
   return (
@@ -230,48 +288,89 @@ export default function App() {
 
       {activeScreen === "home" ? (
         <section className="grid gap-4">
-          <div className="panel p-4 sm:p-5">
-            <h2 className="text-lg font-semibold text-white">Resumo de hoje ({state.recordDate})</h2>
-            <p className="mt-1 text-sm text-slate-400">Mostrando apenas o que importa para o dia atual.</p>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <label className="panel flex items-center justify-between px-4 py-3 text-sm">
-                <span>Treino concluido</span>
+          <div className="panel p-5 sm:p-6 grid gap-2">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Dashboard diario</p>
+            <h2 className="text-2xl font-semibold text-white">Hoje ({state.recordDate})</h2>
+            <p className="text-sm text-slate-400">Acompanhe o proximo treino, dieta de hoje e status rapido em um unico painel.</p>
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            <section className="panel p-5 sm:p-6 grid gap-4">
+              <div className="grid gap-1">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Proximo treino</p>
+                <h3 className="text-2xl font-semibold text-white">{nextWorkout?.name || "Nenhum treino cadastrado"}</h3>
+              </div>
+
+              <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-slate-300 grid gap-1">
+                <p>
+                  Ultimo treino concluido: <b>{lastCompletedWorkout?.workout || "Nenhum ainda"}</b>
+                </p>
+                <p className="text-xs text-slate-400">
+                  Data: {lastCompletedWorkout?.recordDate || "Sem registro"}
+                </p>
+              </div>
+
+              <button className="btn-primary sm:w-fit" disabled={!nextWorkout} onClick={handleOpenNextWorkout} type="button">
+                Abrir proximo treino
+              </button>
+            </section>
+
+            <section className="panel p-5 sm:p-6 grid gap-4">
+              <div className="grid gap-1">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Dieta de hoje</p>
+                <h3 className="text-xl font-semibold capitalize text-white">{todayDayKey}</h3>
+              </div>
+              {todayMeals.length ? (
+                <ul className="grid gap-2 text-sm">
+                  {todayMeals.map((meal) => {
+                    const food = state.foods.find((item) => item.id === meal.foodId);
+                    return (
+                      <li key={meal.id} className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2">
+                        <span className="text-slate-100">{meal.mealName}</span>
+                        <span className="ml-2 text-slate-400">• {food?.name || "Alimento removido"} ({meal.servings} porcao)</span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              ) : (
+                <p className="text-sm text-slate-400">Nenhuma refeicao planejada para hoje.</p>
+              )}
+              <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-slate-300">
+                {Math.round(todayDietTotals.calories)} kcal • {Math.round(todayDietTotals.protein)}g P • {Math.round(todayDietTotals.carbs)}g C • {Math.round(todayDietTotals.fat)}g G
+              </div>
+              <button className="btn-secondary sm:w-fit" onClick={() => handleNavigate("dieta")} type="button">
+                Abrir dieta
+              </button>
+            </section>
+          </div>
+
+          <div className="panel p-5 sm:p-6 grid gap-3">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Status rapido</p>
+            <p className="text-sm text-slate-300">
+              Peso atual: <b>{state.bodyWeight || "--"} kg</b> • Meta calorica: <b>{Math.round(planTargets.targetCalories)} kcal</b>
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="rounded-2xl border border-white/10 bg-white/[0.03] flex items-center justify-between px-4 py-3 text-sm">
+                <span>Treino do dia concluido</span>
                 <input checked={!!todayStatus.workoutDone} type="checkbox" onChange={(event) => updateDailyStatus({ workoutDone: event.target.checked })} />
               </label>
-              <label className="panel flex items-center justify-between px-4 py-3 text-sm">
-                <span>Dieta concluida</span>
+              <label className="rounded-2xl border border-white/10 bg-white/[0.03] flex items-center justify-between px-4 py-3 text-sm">
+                <span>Dieta do dia concluida</span>
                 <input checked={!!todayStatus.dietDone} type="checkbox" onChange={(event) => updateDailyStatus({ dietDone: event.target.checked })} />
               </label>
             </div>
-          </div>
-
-          <div className="panel p-4 sm:p-5">
-            <h3 className="font-semibold">Treinos do dia</h3>
-            <p className="text-sm text-slate-400">Concluidos: {doneCount} de {totalCount} exercicios.</p>
-          </div>
-
-          <div className="panel p-4 sm:p-5">
-            <h3 className="font-semibold">Dieta de hoje ({todayDayKey})</h3>
-            {todayMeals.length ? (
-              <ul className="mt-3 grid gap-2 text-sm">
-                {todayMeals.map((meal) => {
-                  const food = state.foods.find((item) => item.id === meal.foodId);
-                  return <li key={meal.id}>{meal.mealName}: {food?.name || "Alimento removido"} ({meal.servings} porcao)</li>;
-                })}
-              </ul>
-            ) : (
-              <p className="mt-2 text-sm text-slate-400">Nenhuma refeicao planejada para hoje.</p>
-            )}
-            <p className="mt-3 text-sm text-slate-300">
-              Total: {Math.round(todayDietTotals.calories)} kcal • {Math.round(todayDietTotals.protein)}g P • {Math.round(todayDietTotals.carbs)}g C • {Math.round(todayDietTotals.fat)}g G
-            </p>
           </div>
         </section>
       ) : null}
 
       {activeScreen === "treinos" ? (
-        <>
-          <div className="flex flex-wrap gap-3">
+        <section className="grid gap-4">
+          <div className="panel p-5 sm:p-6 grid gap-2">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Treinos</p>
+            <h2 className="text-2xl font-semibold text-white">Execucao e edicao de treinos</h2>
+          </div>
+
+          <div className="panel p-4 sm:p-5 flex flex-wrap gap-3">
             <button className="btn-secondary" onClick={() => setExpandMode("all")} type="button">Abrir todos</button>
             <button className="btn-secondary" onClick={() => setExpandMode("none")} type="button">Fechar todos</button>
             <button className="btn-secondary" onClick={() => setOnlyPendingMode(true)} type="button">So pendentes</button>
@@ -298,12 +397,17 @@ export default function App() {
             onToggleExercise={handleExerciseToggle}
             onUpdateExercise={updateExerciseDefinition}
             onSaveWeight={handleExerciseWeightChange}
+            shouldOpenWorkoutName={focusedWorkoutName}
           />
-        </>
+        </section>
       ) : null}
 
       {activeScreen === "historico" ? (
         <section className="grid gap-4">
+          <div className="panel p-5 sm:p-6 grid gap-2">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Historico</p>
+            <h2 className="text-2xl font-semibold text-white">Treinos concluidos</h2>
+          </div>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div className="grid gap-4 sm:max-w-xs">
               <HistoryFilter options={workoutNames} value={historyFilter} onChange={setHistoryFilter} />
@@ -316,6 +420,10 @@ export default function App() {
 
       {activeScreen === "parametros" ? (
         <section className="grid gap-4">
+          <div className="panel p-5 sm:p-6 grid gap-2">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Parametros</p>
+            <h2 className="text-2xl font-semibold text-white">Dados e calculos do plano</h2>
+          </div>
           <div className="panel p-4 sm:p-5 grid gap-3">
             <h3 className="text-lg font-semibold">Parametros do plano</h3>
             <div className="grid gap-3 sm:grid-cols-2">
@@ -330,9 +438,9 @@ export default function App() {
               <label className="text-sm">Peso de referencia (kg)<input className="input-base mt-1" type="number" step="0.1" value={state.planParameters.weightKg} onChange={(e) => updatePlanParameters({ weightKg: Number(e.target.value) || 0 })} /></label>
               <label className="text-sm">Fator de atividade<input className="input-base mt-1" type="number" step="0.05" value={state.planParameters.activityFactor} onChange={(e) => updatePlanParameters({ activityFactor: Number(e.target.value) || 1 })} /></label>
               <label className="text-sm">Deficit (%)<input className="input-base mt-1" type="number" value={state.planParameters.deficitPercent} onChange={(e) => updatePlanParameters({ deficitPercent: Number(e.target.value) || 0 })} /></label>
-              <label className="text-sm">Proteina alvo (g)<input className="input-base mt-1" type="number" value={state.planParameters.proteinTargetG} onChange={(e) => updatePlanParameters({ proteinTargetG: Number(e.target.value) || 0 })} /></label>
               <label className="text-sm">Carbo alvo (g)<input className="input-base mt-1" type="number" value={state.planParameters.carbsTargetG} onChange={(e) => updatePlanParameters({ carbsTargetG: Number(e.target.value) || 0 })} /></label>
             </div>
+            <p className="text-xs text-slate-400">Proteina alvo calculada automaticamente em 2,2 g/kg conforme o peso informado.</p>
           </div>
 
           <div className="panel p-4 sm:p-5 grid gap-3">
@@ -356,10 +464,18 @@ export default function App() {
 
       {activeScreen === "dieta" ? (
         <section className="grid gap-4">
+          <div className="panel p-5 sm:p-6 grid gap-2">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Dieta</p>
+            <h2 className="text-2xl font-semibold text-white">Alimentos e planejamento semanal</h2>
+          </div>
+
           <div className="panel p-4 sm:p-5 grid gap-3">
             <h3 className="text-lg font-semibold">Buscar alimentos (API)</h3>
             <input className="input-base" placeholder="Digite para buscar alimentos" value={foodQuery} onChange={(e) => setFoodQuery(e.target.value)} />
             <p className="text-xs text-slate-400">{foodLoading ? "Buscando..." : "Selecione da API ou cadastre manualmente"}</p>
+            {!foodLoading && foodQuery.trim().length >= 2 && !foodResults.length ? (
+              <p className="text-xs text-amber-300">API sem resposta no momento. Voce ainda pode cadastrar alimentos manualmente.</p>
+            ) : null}
             <div className="grid gap-2">
               {foodResults.map((food) => (
                 <button key={food.id} type="button" className="btn-secondary justify-between" onClick={() => addFood(food)}>
@@ -407,11 +523,21 @@ export default function App() {
               </div>
             ))}
           </div>
+
+          <div className="panel p-4 sm:p-5 grid gap-2 text-sm text-slate-300">
+            <h3 className="text-lg font-semibold">Totais de hoje ({todayDayKey})</h3>
+            <p>{Math.round(todayDietTotals.calories)} kcal</p>
+            <p>Proteina: {Math.round(todayDietTotals.protein)} g • Carbo: {Math.round(todayDietTotals.carbs)} g • Gordura: {Math.round(todayDietTotals.fat)} g</p>
+          </div>
         </section>
       ) : null}
 
       {activeScreen === "peso" ? (
         <section className="grid gap-4">
+          <div className="panel p-5 sm:p-6 grid gap-2">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Peso corporal</p>
+            <h2 className="text-2xl font-semibold text-white">Registro e historico</h2>
+          </div>
           <div className="panel px-4 py-4 sm:px-5">
             <div className="grid gap-4 sm:max-w-md">
               <label className="grid gap-2 text-sm text-slate-300">

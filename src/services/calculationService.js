@@ -16,7 +16,6 @@ export function calculatePlanTargets({ bodyWeight, planParameters }) {
   const sex = String(planParameters?.sex || "male").toLowerCase();
   const activityFactor = Number(planParameters?.activityFactor) || 1;
   const deficitPercent = Number(planParameters?.deficitPercent) || 0;
-  const proteinTargetG = Number(planParameters?.proteinTargetG) || 0;
   const carbsTargetG = Number(planParameters?.carbsTargetG) || 0;
 
   if (!weight || !age || !height) {
@@ -35,7 +34,7 @@ export function calculatePlanTargets({ bodyWeight, planParameters }) {
   const tdee = bmr * activityFactor;
   const targetCalories = tdee * (1 - deficitPercent / 100);
 
-  const targetProtein = proteinTargetG > 0 ? proteinTargetG : weight * 2.2;
+  const targetProtein = weight * 2.2;
   const targetCarbs = carbsTargetG > 0 ? carbsTargetG : 25;
   const proteinCalories = targetProtein * 4;
   const carbsCalories = targetCarbs * 4;
